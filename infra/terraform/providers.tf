@@ -26,6 +26,8 @@ provider "aws" {
     rds            = "http://localhost:4566"
     secretsmanager = "http://localhost:4566"
     mwaa           = "http://localhost:4566"
+    docdb          = "http://localhost:4566"
+    apigateway     = "http://localhost:4566"
     ec2            = "http://localhost:4566"
   }
 }

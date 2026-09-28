@@ -41,3 +41,10 @@
 - Jobs leen la clave de seudonimización desde Secrets Manager (`--secretoSeudonimo`) y el SQL desde S3; ADR-008 actualizado.
 - `airflow/dags/dag_compras_diario.py` probado: corrida manual y programada en success (ítems 1:38, bodega 0:43), conteos de la bodega sin cambios.
 - Reiniciar floci deja huérfanos los contenedores de MWAA y mueve el puerto del proxy web: `scripts/recrear_mwaa.sh` limpia y recrea; servicio `airflow-ui` (socat) publica la interfaz en `localhost:8080`.
+- Fase 5: DocumentDB `pdc-docdb` y secreto `pdc/docdb` (`infra/terraform/api.tf`); jobs `pdc_api_resumen_organismos` (bodega → s3://pdc-api) y `pdc_api_resumen_organismos_ingest` (S3 → DocumentDB con renombre atómico); `sql/api/resumen_organismos.sql` con HHI y top 5 proveedores. Cargados julio, agosto y septiembre (1.149 organismos en septiembre).
+- Emulador de Glue: soporte de `--additional-python-modules` y entrypoint `bash -c` explícito (la imagen ya usa bash como entrypoint).
+- Lambda `pdc-api-compras` (arm64, pymongo empaquetado con `scripts/empaquetar_lambda.sh`) y API Gateway REST `v1` con dos endpoints, API key obligatoria y plan de uso. Probado: 200 con key, 403 sin key o con key falsa, 404 y 400.
+- Limitaciones de floci resueltas: API key por CLI (`scripts/crear_api_key.sh`) porque el provider de Terraform falla al leerla; `ignore_changes` en `timeout_milliseconds`; se borraron 2 APIs y 2 keys huérfanas del apply abortado. ADR-012.
+- DAG diario extendido con los jobs de la API; `scripts/publicar_dags.sh` porque floci no resincroniza DAGs desde S3.
+- Ejecución manual del DAG con las 6 tareas: `glue_vw_ordenes_compra_items` falló (FAILED sin excepción en el log; posible falta de memoria con dos ejecuciones simultáneas, sin verificar). Se detuvieron todos los servicios para liberar recursos; pendiente en TODO.
+- Nota `RETOMAR.md` con los pasos para levantar el entorno de nuevo.

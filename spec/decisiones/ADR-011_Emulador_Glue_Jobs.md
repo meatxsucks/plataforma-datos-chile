@@ -13,6 +13,7 @@ Servicio `glue-jobs` en docker-compose (`emuladores/glue_jobs/app.py`, ~150 lín
 - Atiende la API JSON 1.1 de Glue en `http://glue-jobs:4567`.
 - `StartJobRun`: lee el job desde floci (`GetJob`), baja el script y `--extra-py-files` desde S3 a un volumen compartido y lanza el contenedor oficial `aws-glue-libs:5` con los argumentos por defecto más los de la ejecución.
 - `GetJobRun` / `GetJobRuns`: estado en memoria (`STARTING`, `RUNNING`, `SUCCEEDED`, `FAILED`), tiempo de ejecución y mensaje de error.
+- Soporta `--additional-python-modules` (pip install antes de spark-submit).
 - Cualquier otra operación se reenvía tal cual a floci.
 
 En Airflow, la conexión `aws_default` vive en Secrets Manager (`airflow/connections/aws_default`, backend `SecretsManagerBackend`, igual que en MWAA real) y redirige solo Glue con `service_config.glue.endpoint_url`. El resto de los servicios usa floci.
@@ -30,3 +31,4 @@ En Airflow, la conexión `aws_default` vive en Secrets Manager (`airflow/connect
 - Los jobs se definen en Terraform (`aws_glue_job`) con script, utilidades y SQL en `s3://pdc-glue-assets`.
 - El estado de las ejecuciones se pierde si se reinicia el emulador; los logs quedan en el volumen `pdc-glue-trabajo`.
 - Varios jobs a la vez compiten por la memoria de Docker: los DAGs limitan a una ejecución por tarea.
+- floci solo copia los DAGs desde S3 al crear el entorno: `scripts/publicar_dags.sh` sube a S3 y copia al contenedor.

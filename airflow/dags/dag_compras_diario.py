@@ -41,7 +41,7 @@ def raw_actualizado(meses, fecha):
 
 with DAG(
     dag_id="dag_compras_diario",
-    description="Procesa las órdenes de compra del día: raw → analytics → bodega",
+    description="Procesa las órdenes de compra del día: raw → analytics → bodega → API",
     start_date=datetime(2026, 9, 1, tzinfo=ZONA),
     schedule="15 9 * * *",
     catchup=False,
@@ -77,4 +77,20 @@ with DAG(
         max_active_tis_per_dagrun=1,
     ).expand(script_args=meses.map(lambda mes: {"--fechaParticion": mes}))
 
-    meses >> esperar_raw >> items >> bodega
+    api = GlueJobOperator.partial(
+        task_id="glue_api_resumen_organismos",
+        job_name="pdc_api_resumen_organismos",
+        wait_for_completion=True,
+        verbose=False,
+        max_active_tis_per_dagrun=1,
+    ).expand(script_args=meses.map(lambda mes: {"--fechaParticion": mes}))
+
+    ingesta = GlueJobOperator.partial(
+        task_id="glue_api_resumen_organismos_ingest",
+        job_name="pdc_api_resumen_organismos_ingest",
+        wait_for_completion=True,
+        verbose=False,
+        max_active_tis_per_dagrun=1,
+    ).expand(script_args=meses.map(lambda mes: {"--fechaParticion": mes}))
+
+    meses >> esperar_raw >> items >> bodega >> api >> ingesta

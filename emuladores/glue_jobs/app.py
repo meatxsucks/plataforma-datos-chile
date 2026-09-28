@@ -1,5 +1,6 @@
 import json
 import os
+import shlex
 import threading
 import urllib.error
 import urllib.request
@@ -17,8 +18,9 @@ IMAGEN = os.environ.get("GLUE_IMAGEN", "public.ecr.aws/glue/aws-glue-libs:5")
 RED = os.environ.get("RED_DOCKER", "plataforma-datos-chile_default")
 VOLUMEN = os.environ.get("VOLUMEN_TRABAJO", "pdc-glue-trabajo")
 TRABAJO = Path("/trabajo")
-MEMORIA_DRIVER = os.environ.get("MEMORIA_DRIVER", "4g")
-ARGUMENTOS_INTERNOS = ("--extra-py-files", "--job-language", "--enable-", "--TempDir", "--job-bookmark-option")
+MEMORIA_DRIVER = os.environ.get("MEMORIA_DRIVER", "3g")
+PARTICIONES_SHUFFLE = os.environ.get("PARTICIONES_SHUFFLE", "16")
+ARGUMENTOS_INTERNOS = ("--extra-py-files", "--additional-python-modules", "--job-language", "--enable-", "--TempDir", "--job-bookmark-option")
 
 glue = boto3.client("glue", endpoint_url=FLOCI)
 s3 = boto3.client("s3", endpoint_url=FLOCI)
@@ -47,6 +49,7 @@ def armar_comando(script, py_files, argumentos, nombre_job):
     comando = [
         "spark-submit",
         "--driver-memory", MEMORIA_DRIVER,
+        "--conf", f"spark.sql.shuffle.partitions={PARTICIONES_SHUFFLE}",
         "--conf", "spark.hadoop.fs.s3.impl=org.apache.hadoop.fs.s3a.S3AFileSystem",
         "--conf", f"spark.hadoop.fs.s3a.endpoint={FLOCI}",
         "--conf", "spark.hadoop.fs.s3a.path.style.access=true",
@@ -76,10 +79,16 @@ def ejecutar(id_ejecucion, nombre_job, argumentos_run):
         py_files = [descargar(r, directorio) for r in argumentos.get("--extra-py-files", "").split(",") if r]
         propios = {k: v for k, v in argumentos.items() if not k.startswith(ARGUMENTOS_INTERNOS)}
 
+        comando = shlex.join(armar_comando(f"/trabajo/{id_ejecucion}/{script.name}", [f"/trabajo/{id_ejecucion}/{p.name}" for p in py_files], propios, nombre_job))
+        modulos = [m for m in argumentos.get("--additional-python-modules", "").split(",") if m]
+        if modulos:
+            comando = f"pip install --quiet --user {shlex.join(modulos)} && {comando}"
+
         registro["JobRunState"] = "RUNNING"
         contenedor = motor.containers.run(
             IMAGEN,
-            armar_comando(f"/trabajo/{id_ejecucion}/{script.name}", [f"/trabajo/{id_ejecucion}/{p.name}" for p in py_files], propios, nombre_job),
+            [comando],
+            entrypoint=["bash", "-c"],
             volumes={VOLUMEN: {"bind": "/trabajo", "mode": "rw"}},
             network=RED,
             environment={
@@ -98,7 +107,9 @@ def ejecutar(id_ejecucion, nombre_job, argumentos_run):
         (directorio / "salida.log").write_text("\n".join(logs))
         registro["JobRunState"] = "SUCCEEDED" if salida["StatusCode"] == 0 else "FAILED"
         if salida["StatusCode"] != 0:
-            registro["ErrorMessage"] = "\n".join(l for l in logs[-40:] if "Error" in l or "Exception" in l)[-2000:]
+            causa = "sin memoria: el proceso fue terminado por el sistema (código 137)" if salida["StatusCode"] == 137 else f"código de salida {salida['StatusCode']}"
+            detalle = "\n".join(l for l in logs[-40:] if "Error" in l or "Exception" in l)
+            registro["ErrorMessage"] = f"{causa}\n{detalle}"[-2000:]
     except Exception as e:
         registro["JobRunState"] = "FAILED"
         registro["ErrorMessage"] = str(e)[:2000]

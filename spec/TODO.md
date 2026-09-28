@@ -45,9 +45,16 @@ Cada fase termina con algo que se puede demostrar. No se pasa de fase sin cumpli
 - [ ] floci no expone un puerto estable para la web de MWAA: se usa `airflow-ui` (socat) en `localhost:8080`
 
 ## Fase 5 — API
-- [ ] INGEST a DocumentDB
-- [ ] Lambda de lectura + API Gateway + API keys
-- **Término:** `curl` con API key responde con datos; sin key responde 403.
+- [x] DocumentDB `pdc-docdb` y jobs `pdc_api_resumen_organismos` + `_ingest` (julio a septiembre)
+- [x] Lambda `pdc-api-compras` + API Gateway `v1` con API key y plan de uso ([[ADR-012_API_Datos_Compras]])
+- [x] DAG diario extendido: bodega → API → ingesta
+- **Término:** `curl` con API key responde con datos; sin key responde 403. **Cumplido 2026-09-28.**
+- [ ] Endpoint de proveedores (`/compras/proveedores/{codigo}/ordenes`)
+
+## Pendiente al pausar (2026-09-28)
+- [ ] **Fallo en `dag_compras_diario` (manual__2026-09-28T18:20:06):** `glue_vw_ordenes_compra_items` terminó en FAILED dos veces sin excepción en el log de Spark; el log se corta mientras cachea bloques. Hipótesis no verificada: el contenedor se quedó sin memoria (código 137) porque corrían dos ejecuciones del DAG a la vez, cada una con 4 GB de driver, junto a Airflow (~1,8 GB) y floci (~1,8 GB) en 7,6 GB de Docker. La otra ejecución (manual__2026-09-28T18:22:05) se marcó a mano como success desde la interfaz y **no procesó datos**.
+- [ ] Propuesta para el emulador (no aplicada): driver de 3 GB, `spark.sql.shuffle.partitions=16` y un `ErrorMessage` que informe el código de salida (137 = sin memoria). Confirmar la causa revisando el código de salida antes de cambiar nada.
+- [ ] Reintentar la ejecución fallida desde la interfaz (Clear sobre las tareas de Glue) y confirmar que llega hasta la ingesta de la API.
 
 ## Fase 6 — Monitoreo
 - [ ] Tablas de monitoreo, chequeos de frescura y volumen, alertas

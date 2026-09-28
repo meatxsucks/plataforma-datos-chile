@@ -10,7 +10,7 @@ resource "aws_s3_bucket" "glue_assets" {
 locals {
   archivos_glue = merge(
     { for f in fileset("${path.module}/../../glue/jobs", "*.py") : "jobs/${f}" => "${path.module}/../../glue/jobs/${f}" },
-    { for f in fileset("${path.module}/../../sql/bodega", "*.sql") : "sql/bodega/${f}" => "${path.module}/../../sql/bodega/${f}" },
+    { for f in fileset("${path.module}/../../sql", "**/*.sql") : "sql/${f}" => "${path.module}/../../sql/${f}" },
     { "utils/glue_utils.py" = "${path.module}/../../utils/glue_utils.py" },
   )
   ruta_assets = "s3://${aws_s3_bucket.glue_assets.bucket}"
@@ -31,6 +31,19 @@ locals {
       "--secretoBodega" = aws_secretsmanager_secret.bodega.name
       "--rutaSql"       = "${local.ruta_assets}/sql/bodega"
       "--hostBodega"    = "floci"
+    }
+    pdc_api_resumen_organismos = {
+      "--bucketDestino" = aws_s3_bucket.capas["api"].bucket
+      "--secretoBodega" = aws_secretsmanager_secret.bodega.name
+      "--rutaSql"       = "${local.ruta_assets}/sql/api"
+      "--hostBodega"    = "floci"
+    }
+    pdc_api_resumen_organismos_ingest = {
+      "--bucketOrigen"              = aws_s3_bucket.capas["api"].bucket
+      "--secretoDocdb"              = aws_secretsmanager_secret.docdb.name
+      "--hostDocdb"                 = "floci-docdb-pdc-docdb"
+      "--baseDocdb"                 = "api_compras"
+      "--additional-python-modules" = "pymongo==4.10.1"
     }
   }
 }

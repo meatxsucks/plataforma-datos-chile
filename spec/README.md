@@ -18,6 +18,7 @@ orquestación, APIs de datos, monitoreo y visualización.
 - [[AGENTS]] — protocolo de trabajo.
 - [[ARQUITECTURA]] — vista general, capas, servicios y cómo se emula cada uno.
 - [[TODO]] — fases y tareas, con criterio de término.
+- [[RETOMAR]] — cómo levantar el entorno después de una pausa.
 - [[CHANGELOG]] — registro de cambios aplicados.
 - [[DUDAS]] — decisiones abiertas que bloquean o condicionan fases.
 - `dominios/` — una nota por dominio: fuentes, modelo de datos, transformaciones, API.

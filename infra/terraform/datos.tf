@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "capas" {
-  for_each = toset(["stg", "analytics", "cert", "sensible", "athena-resultados"])
+  for_each = toset(["stg", "analytics", "cert", "sensible", "athena-resultados", "api"])
   bucket   = "pdc-${each.key}"
 }
 

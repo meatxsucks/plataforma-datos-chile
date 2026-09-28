@@ -25,7 +25,9 @@ cp .env.example .env                       # ticket de Mercado Público, clave d
 docker compose up -d                       # floci en localhost:4566
 python3.11 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 set -a; source .env; set +a
-cd infra/terraform && terraform init && TF_VAR_postgres_password=$POSTGRES_PASSWORD terraform apply && cd -
+scripts/empaquetar_lambda.sh api_compras
+export TF_VAR_postgres_password=$POSTGRES_PASSWORD TF_VAR_clave_seudonimo=$CLAVE_SEUDONIMO TF_VAR_docdb_password=$DOCDB_PASSWORD
+cd infra/terraform && terraform init && terraform apply && cd -
 ```
 
 ## Primer pipeline
@@ -57,6 +59,18 @@ reenvío a la interfaz de Airflow (`airflow-ui`, puerto 8080). Terraform crea el
 open http://localhost:8080                 # usuario admin
 docker exec $(docker ps --format '{{.Names}}' | grep pdc-airflow-airflow) printenv _AIRFLOW_WWW_USER_PASSWORD
 scripts/recrear_mwaa.sh                    # después de reiniciar floci
+scripts/publicar_dags.sh                   # después de cambiar un DAG
+```
+
+## API de datos
+
+```bash
+scripts/empaquetar_lambda.sh api_compras   # antes de terraform apply
+scripts/crear_api_key.sh                    # guarda API_KEY_DEMO en .env
+set -a; source .env; set +a
+URL=$(terraform -chdir=infra/terraform output -raw url_api)
+curl -H "x-api-key: $API_KEY_DEMO" "$URL/compras/organismos/7248/resumen?mes=2026-09"
+curl -H "x-api-key: $API_KEY_DEMO" "$URL/compras/alertas/concentracion?hhi_min=5000&limite=10"
 ```
 
 ## MCP

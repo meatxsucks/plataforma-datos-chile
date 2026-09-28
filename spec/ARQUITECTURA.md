@@ -72,3 +72,4 @@ Según el README de floci, revisado el 2026-09-28:
 - [[ADR-009_Extraccion_Archivo_Masivo]]
 - [[ADR-010_Modelo_Dimensional_Compras]]
 - [[ADR-011_Emulador_Glue_Jobs]]
+- [[ADR-012_API_Datos_Compras]]
