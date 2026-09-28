@@ -20,12 +20,13 @@ Cada fase termina con algo que se puede demostrar. No se pasa de fase sin cumpli
 
 ## Fase 2 — Compras: extracción y capas
 - [x] Pedir el ticket de Mercado Público (probado 2026-09-28: 1.316 órdenes el 26-09-2026)
-- [ ] Lambda extractora de órdenes de compra → raw (hoy script local `scripts/extraer_ordenes_dia.py`)
+- [x] Lambda `pdc-extractor-oc-masiva` + EventBridge Scheduler diario 09:00 Chile (ver [[ADR-009_Extraccion_Archivo_Masivo]]); probada manual, idempotente y disparada por el programador
 - [x] Backfill julio y agosto 2026 desde las descargas masivas de ChileCompra (`vw_ordenes_compra_items`, grano ítem)
 - [x] Primer job `pdc_vw_ordenes_compra` con seudonimización (60 órdenes de muestra)
 - [x] Verificar la tabla con Athena de floci: 60 filas, 60 códigos únicos, 3 personas naturales seudonimizadas; reejecución sin duplicar y 1 solo archivo
 - [x] Job de ítems `pdc_vw_ordenes_compra_items`: 427.834 ítems en julio y 433.800 en agosto
-- **Término:** una semana de órdenes consultable en Athena.
+- **Término:** una semana de órdenes consultable en Athena. **Cumplido 2026-09-28:** julio, agosto y septiembre (1.217.219 ítems) consultables en Athena.
+- [ ] Licitaciones (archivo masivo `lic-da`) e InfoLobby
 
 ## Fase 3 — Bodega dimensional
 - [ ] Modelo en Postgres (dimensiones y hechos de [[Compras_Publicas]])

@@ -12,9 +12,8 @@ evoluciona eso en el tiempo, y coincide con audiencias de lobby de esos mismos p
 
 ## Flujo
 
-1. Lambda extractora diaria: órdenes de compra y licitaciones del día anterior → `raw/compras/...`.
-   Pagina por fecha, respeta el límite diario del ticket y guarda la respuesta tal cual.
-2. Carga histórica (backfill): un DAG que recorre fechas hacia atrás, en horario valle.
+1. Lambda extractora diaria (09:00): archivo masivo del mes en curso → `raw/compras/ordenes_compra_masiva/mes=AAAA-MM/`. Ver [[ADR-009_Extraccion_Archivo_Masivo]].
+2. Carga histórica: la misma Lambda con `{"meses": ["2026-07", ...]}`.
 3. Glue stg: aplanar JSON, tipar montos y fechas, normalizar RUT, deduplicar por código.
 4. Glue analytics: hechos y dimensiones en Parquet, registrados en el catálogo.
 5. Carga a la bodega: `stage_table` + DELETE/INSERT por fecha.

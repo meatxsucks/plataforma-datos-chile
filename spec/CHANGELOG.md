@@ -28,3 +28,6 @@
 - `utils/glue_utils.py`: `sql_es_persona_natural`, `sql_token_rut` y `sql_decimal`; el job de órdenes los reutiliza. `glue_local.sh` acepta `MEMORIA_DRIVER`.
 - Diagrama rehecho con líneas ortogonales y fronteras AWS Cloud, cuenta y región us-east-1.
 - Primer hallazgo en Compras_Publicas: el trato directo es ~4% de los ítems pero 15–20% del monto.
+- Fase 2: Lambda `pdc-extractor-oc-masiva` (descarga el zip mensual y lo descomprime en streaming a raw, idempotente por ETag) y EventBridge Scheduler `pdc-extractor-oc-masiva-diario` (cron 09:00 America/Santiago) en `infra/terraform/extraccion.tf`; endpoints scheduler y logs en el provider.
+- Probado: invocación manual cargó septiembre (601 MB) en ~30 s; segunda invocación devolvió `sin_cambios`; un schedule puntual `at()` disparó la Lambda en floci (se borró tras la prueba).
+- Septiembre procesado con `pdc_vw_ordenes_compra_items`: 355.585 ítems, 6.003 personas naturales en el diccionario. Verificado que ningún ítem se repite entre meses. ADR-009.
