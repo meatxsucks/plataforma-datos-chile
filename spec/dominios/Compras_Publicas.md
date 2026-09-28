@@ -41,3 +41,12 @@ evoluciona eso en el tiempo, y coincide con audiencias de lobby de esos mismos p
 - `GET /compras/organismos/{codigo}/resumen?desde&hasta`
 - `GET /compras/proveedores/{rut}/ordenes?desde&hasta`
 - `GET /compras/alertas/concentracion?trimestre`
+
+## Primeros resultados (julio y agosto 2026)
+
+| Mes | Ítems | Órdenes | % ítems en trato directo | % del monto en trato directo |
+|---|---|---|---|---|
+| 2026-07 | 427.834 | 151.130 | 4,5 | 19,7 |
+| 2026-08 | 433.800 | 153.553 | 4,3 | 15,1 |
+
+El trato directo es una fracción chica de las compras, pero concentra entre 15% y 20% del monto: son pocas compras grandes. El monto se mide con `monto_total_oc_clp` a nivel de orden, porque las líneas pueden venir en UF.

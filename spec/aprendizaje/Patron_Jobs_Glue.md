@@ -26,3 +26,5 @@ Estructura común a todos los jobs del proyecto, inspirada en prácticas habitua
 - Sin `repartition`, un `ROW_NUMBER` deja 200 particiones de shuffle y escribe decenas de archivos chicos (50 archivos para 60 filas en la primera prueba).
 - En local, Glue usa su propio catálogo; `registrar_tabla` escribe la tabla en el catálogo de floci vía boto3.
 - `s3://` se mapea a S3A con endpoint de floci en `scripts/glue_local.sh`.
+- El lector CSV de DynamicFrame no maneja latin-1 ni campos multilínea: los archivos masivos se leen con `spark.read.csv` y se vuelve a DynamicFrame para escribir.
+- `SELECT * EXCEPT` no existe en Spark 3.5 (Glue 5): la lista de columnas se arma en Python.

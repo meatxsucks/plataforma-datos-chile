@@ -6,7 +6,7 @@ services:
       - "4566:4566"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./.floci-data:/data
+      - ${HOME}/.pdc/floci-data:/data
     environment:
       - FLOCI_HOSTNAME=floci
       - FLOCI_DEFAULT_REGION=us-east-1

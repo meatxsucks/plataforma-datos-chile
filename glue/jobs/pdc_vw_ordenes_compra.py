@@ -6,7 +6,7 @@ from awsglue.job import Job
 from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
 
-from glue_utils import purgar_particion, registrar_tabla, spark_sql
+from glue_utils import purgar_particion, registrar_tabla, spark_sql, sql_es_persona_natural, sql_token_rut
 
 args = getResolvedOptions(sys.argv, ["JOB_NAME", "fechaParticion", "bucketOrigen", "bucketDestino", "bucketSensible", "baseDatos", "claveSeudonimo"])
 
@@ -31,8 +31,8 @@ raw = glueContext.create_dynamic_frame.from_options(
 
 query_base = f"""
 SELECT *,
-       CAST(split(replace(rut_proveedor, '.', ''), '-')[0] AS BIGINT) < 50000000 AS es_persona_natural,
-       sha2(concat('{args['claveSeudonimo']}', regexp_replace(upper(rut_proveedor), '[^0-9K]', '')), 256) AS token_proveedor
+       {sql_es_persona_natural('rut_proveedor')} AS es_persona_natural,
+       {sql_token_rut('rut_proveedor', args['claveSeudonimo'])} AS token_proveedor
 FROM (
     SELECT Codigo AS codigo,
            Nombre AS nombre,

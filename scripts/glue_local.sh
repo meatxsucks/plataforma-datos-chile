@@ -17,6 +17,7 @@ docker run --rm \
   -e AWS_ENDPOINT_URL=http://floci:4566 \
   public.ecr.aws/glue/aws-glue-libs:5 \
   spark-submit \
+    --driver-memory "${MEMORIA_DRIVER:-2g}" \
     --conf spark.hadoop.fs.s3.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
     --conf spark.hadoop.fs.s3a.endpoint=http://floci:4566 \
     --conf spark.hadoop.fs.s3a.path.style.access=true \

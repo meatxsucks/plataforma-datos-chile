@@ -23,3 +23,8 @@
 - Fase 1b verificada con Athena: 60 filas, 60 códigos, monto 194.722.172, 3 personas naturales con nombre enmascarado y token de 64 caracteres; la reejecución no duplica y escribe 1 archivo tras el repartition.
 - Fase 1c: diagrama `docs/diagramas/arquitectura_general.py` (PNG y SVG, íconos oficiales AWS); README raíz; requirements-dev con boto3 y diagrams.
 - `uv` instalado con Homebrew. `aws-api-mcp-server` probado contra floci con `scripts/probar_mcp_aws.py`: lista S3 y el catálogo de Glue; escritura bloqueada con READ_OPERATIONS_ONLY. Configurado en `.mcp.json`. ADR-006 actualizado.
+- Datos de floci movidos fuera de OneDrive a `~/.pdc/floci-data` (docker-compose apunta a `${HOME}/.pdc/floci-data`); catálogo conservado.
+- Backfill julio y agosto 2026 desde archivos masivos de ChileCompra a `s3://pdc-raw/compras/ordenes_compra_masiva/mes=AAAA-MM/`. Nuevo job `pdc_vw_ordenes_compra_items` (grano ítem, seudonimización, diccionario en pdc-sensible): 427.834 y 433.800 ítems, ~1:40 min por mes con 4 GB de driver.
+- `utils/glue_utils.py`: `sql_es_persona_natural`, `sql_token_rut` y `sql_decimal`; el job de órdenes los reutiliza. `glue_local.sh` acepta `MEMORIA_DRIVER`.
+- Diagrama rehecho con líneas ortogonales y fronteras AWS Cloud, cuenta y región us-east-1.
+- Primer hallazgo en Compras_Publicas: el trato directo es ~4% de los ítems pero 15–20% del monto.

@@ -14,16 +14,17 @@ Cada fase termina con algo que se puede demostrar. No se pasa de fase sin cumpli
 - [x] Probar `aws-api-mcp-server` contra floci: respeta `AWS_ENDPOINT_URL`, lee S3 y el catálogo de Glue; configurado en `.mcp.json` en modo solo lectura
 - [ ] MCP de Postgres y MongoDB cuando existan esas bases (fases 3 y 5)
 - [x] Primer diagrama con `mingrammer/diagrams`: `docs/diagramas/arquitectura_general.py` → PNG y SVG
-- [ ] Pulir diagrama: ícono de OpenMetadata y Streamlit, cruce de la línea de tiempo real
+- [x] Diagrama rehecho con líneas ortogonales y fronteras AWS Cloud → Cuenta → Región
+- [ ] Diagrama: íconos propios de Streamlit y OpenMetadata
 - **Término:** `terraform apply` crea bucket y Lambda; un job de Glue local escribe Parquet en floci.
 
 ## Fase 2 — Compras: extracción y capas
 - [x] Pedir el ticket de Mercado Público (probado 2026-09-28: 1.316 órdenes el 26-09-2026)
 - [ ] Lambda extractora de órdenes de compra → raw (hoy script local `scripts/extraer_ordenes_dia.py`)
-- [ ] Backfill histórico desde las descargas masivas de ChileCompra
+- [x] Backfill julio y agosto 2026 desde las descargas masivas de ChileCompra (`vw_ordenes_compra_items`, grano ítem)
 - [x] Primer job `pdc_vw_ordenes_compra` con seudonimización (60 órdenes de muestra)
 - [x] Verificar la tabla con Athena de floci: 60 filas, 60 códigos únicos, 3 personas naturales seudonimizadas; reejecución sin duplicar y 1 solo archivo
-- [ ] Job de ítems de órdenes de compra
+- [x] Job de ítems `pdc_vw_ordenes_compra_items`: 427.834 ítems en julio y 433.800 en agosto
 - **Término:** una semana de órdenes consultable en Athena.
 
 ## Fase 3 — Bodega dimensional

@@ -76,3 +76,21 @@ def registrar_tabla(base, tabla, ruta, esquema, clave_particion, valor_particion
         glue.update_partition(
             DatabaseName=base, TableName=tabla, PartitionValueList=[valor_particion], PartitionInput=particion
         )
+
+
+# Expresión SQL que marca RUT de persona natural
+def sql_es_persona_natural(columna_rut):
+    """Devuelve la expresión Spark SQL que marca como persona natural un RUT menor a 50.000.000."""
+    return f"CAST(split(replace({columna_rut}, '.', ''), '-')[0] AS BIGINT) < 50000000"
+
+
+# Expresión SQL del token seudónimo de un RUT
+def sql_token_rut(columna_rut, clave):
+    """Devuelve la expresión Spark SQL que seudonimiza el RUT normalizado con la clave secreta."""
+    return f"sha2(concat('{clave}', regexp_replace(upper({columna_rut}), '[^0-9K]', '')), 256)"
+
+
+# Expresión SQL de número con coma decimal
+def sql_decimal(columna, precision="DECIMAL(20,4)"):
+    """Devuelve la expresión Spark SQL que convierte un texto con coma decimal a DECIMAL."""
+    return f"CAST(replace(NULLIF(trim({columna}), ''), ',', '.') AS {precision})"

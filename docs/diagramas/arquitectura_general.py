@@ -7,98 +7,135 @@ from diagrams.aws.database import DocumentDB, Dynamodb, RDSPostgresqlInstance
 from diagrams.aws.integration import EventbridgeScheduler
 from diagrams.aws.management import AmazonManagedWorkflowsApacheAirflow, Cloudwatch
 from diagrams.aws.network import APIGateway
-from diagrams.aws.security import SecretsManager
+from diagrams.aws.security import IAM, SecretsManager
 from diagrams.aws.storage import SimpleStorageServiceS3Bucket
 from diagrams.onprem.client import Users
 from diagrams.onprem.iac import Terraform
 from diagrams.programming.language import Python
 from diagrams.saas.chat import Telegram
-from diagrams.generic.blank import Blank
 
 SALIDA = Path(__file__).parent / "arquitectura_general"
 
-ATRIBUTOS = {
-    "fontsize": "22",
-    "fontname": "Helvetica",
+GRAFO = {
+    "fontsize": "24",
+    "fontname": "Helvetica-Bold",
     "labelloc": "t",
-    "pad": "0.6",
-    "nodesep": "0.7",
-    "ranksep": "1.1",
-    "splines": "spline",
+    "pad": "0.5",
+    "nodesep": "0.9",
+    "ranksep": "1.2",
+    "splines": "ortho",
 }
-NODOS = {"fontsize": "12", "fontname": "Helvetica"}
-BATCH = Edge(color="#1f6feb")
-STREAM = Edge(color="#d1242f", style="bold")
-CONTROL = Edge(color="#8c959f", style="dashed")
-INVISIBLE = Edge(style="invis")
+NODOS = {"fontsize": "12", "fontname": "Helvetica", "height": "1.3"}
+
+
+# Estilo de un contenedor según el tipo de frontera de AWS
+def estilo(borde, fondo="white", linea="solid"):
+    """Devuelve los atributos Graphviz de un cluster con borde, fondo y tipo de línea."""
+    return {
+        "bgcolor": fondo,
+        "pencolor": borde,
+        "penwidth": "2",
+        "style": linea,
+        "fontname": "Helvetica-Bold",
+        "fontsize": "14",
+        "fontcolor": borde,
+        "labeljust": "l",
+        "margin": "20",
+    }
+
+
+NUBE = estilo("#232F3E")
+CUENTA = estilo("#E7157B")
+REGION = estilo("#00A4A6", linea="dashed")
+GRUPO = estilo("#7D8998", fondo="#F7F9FA")
+EXTERNO = estilo("#7D8998", fondo="#FFFFFF", linea="dashed")
+
+BATCH = Edge(color="#1f6feb", penwidth="1.6")
+STREAM = Edge(color="#d1242f", penwidth="2")
+CONTROL = Edge(color="#7D8998", style="dashed")
+GUIA = Edge(style="invis")
 
 with Diagram(
-    "Plataforma de Datos Chile — AWS emulado con floci",
+    "Plataforma de Datos Chile",
     filename=str(SALIDA),
     outformat=["png", "svg"],
     direction="LR",
     show=False,
-    graph_attr=ATRIBUTOS,
+    graph_attr=GRAFO,
     node_attr=NODOS,
 ):
-    with Cluster("Fuentes públicas"):
-        mp = Users("Mercado Público\nInfoLobby")
-        eco = Users("Banco Central\nCMF · INE")
-        gps = Users("Posiciones GPS\n(DTPM / simulador)")
+    with Cluster("Fuentes públicas", graph_attr=EXTERNO):
+        gps = Users("Posiciones GPS\nDTPM / simulador")
+        compras = Users("Mercado Público\nInfoLobby")
+        economia = Users("Banco Central\nCMF · INE")
 
-    with Cluster("Ingesta"):
-        programador = EventbridgeScheduler("EventBridge")
-        extractor = Lambda("Lambdas\nextractoras")
-        stream = KinesisDataStreams("Kinesis\nposiciones")
-        consumidor = Lambda("Lambda\nconsumidora")
+    with Cluster("AWS Cloud", graph_attr=NUBE):
+        with Cluster("Cuenta 000000000000 · floci local", graph_attr=CUENTA):
+            iam = IAM("IAM")
 
-    with Cluster("Lago de datos (S3)"):
-        raw = SimpleStorageServiceS3Bucket("raw")
-        stg = SimpleStorageServiceS3Bucket("stg")
-        analytics = SimpleStorageServiceS3Bucket("analytics")
-        sensible = SimpleStorageServiceS3Bucket("sensible\n(diccionario PII)")
+            with Cluster("Región us-east-1", graph_attr=REGION):
+                with Cluster("Ingesta", graph_attr=GRUPO):
+                    programador = EventbridgeScheduler("EventBridge\nScheduler")
+                    extractor = Lambda("Lambdas\nextractoras")
+                    kinesis = KinesisDataStreams("Kinesis\nposiciones")
+                    consumidor = Lambda("Lambda\nconsumidora")
 
-    with Cluster("Procesamiento"):
-        glue = Glue("Glue PySpark\nvw · cert · dim · api")
-        catalogo = GlueDataCatalog("Catálogo")
-        athena = Athena("Athena")
+                with Cluster("Lago de datos · S3", graph_attr=GRUPO):
+                    raw = SimpleStorageServiceS3Bucket("raw")
+                    analytics = SimpleStorageServiceS3Bucket("stg · analytics")
+                    sensible = SimpleStorageServiceS3Bucket("sensible\ndiccionario PII")
 
-    with Cluster("Servicio"):
-        bodega = RDSPostgresqlInstance("Bodega\nPostgres")
-        docdb = DocumentDB("DocumentDB\n(gold)")
-        estado = Dynamodb("DynamoDB\nestado actual")
-        api_lambda = Lambda("Lambda\nde lectura")
-        gateway = APIGateway("API Gateway\nAPI keys")
+                with Cluster("Procesamiento", graph_attr=GRUPO):
+                    glue = Glue("Glue PySpark")
+                    catalogo = GlueDataCatalog("Glue Data\nCatalog")
+                    athena = Athena("Athena")
+
+                with Cluster("Almacenamiento de servicio", graph_attr=GRUPO):
+                    bodega = RDSPostgresqlInstance("RDS Postgres\nbodega")
+                    docdb = DocumentDB("DocumentDB\ngold")
+                    dynamo = Dynamodb("DynamoDB\nestado actual")
+
+                with Cluster("Exposición", graph_attr=GRUPO):
+                    lectura = Lambda("Lambda\nde lectura")
+                    gateway = APIGateway("API Gateway\nAPI keys")
+
+                with Cluster("Orquestación y monitoreo", graph_attr=GRUPO):
+                    mwaa = AmazonManagedWorkflowsApacheAirflow("MWAA\nAirflow")
+                    secretos = SecretsManager("Secrets\nManager")
+                    monitoreo = Cloudwatch("Monitoreo")
+                    alertas = Lambda("Lambda\nalertas")
+
+    with Cluster("Consumo", graph_attr=EXTERNO):
+        clientes = Users("Consumidores\nde la API")
         tablero = Python("Streamlit")
+        telegram = Telegram("Telegram")
 
-    with Cluster("Operación y gobernanza"):
-        airflow = AmazonManagedWorkflowsApacheAirflow("MWAA\nAirflow")
-        monitoreo = Cloudwatch("Monitoreo\nfrescura · volumen")
-        alertas = Telegram("Alertas\n+ OpenRouter")
-        secretos = SecretsManager("Secretos")
-        iac = Terraform("Terraform")
-        gobierno = Blank("OpenMetadata\nGreat Expectations")
+    terraform = Terraform("Terraform")
 
+    compras >> BATCH >> extractor
+    economia >> BATCH >> extractor
     programador >> CONTROL >> extractor
-    [mp, eco] >> BATCH >> extractor >> BATCH >> raw
-    gps >> STREAM >> stream >> STREAM >> consumidor
-    consumidor >> STREAM >> estado
-    consumidor >> STREAM >> raw
+    extractor >> BATCH >> raw
+    gps >> STREAM >> kinesis >> STREAM >> consumidor
+    consumidor >> STREAM >> dynamo
 
     raw >> BATCH >> glue
-    glue >> BATCH >> stg
     glue >> BATCH >> analytics
     glue >> BATCH >> sensible
-    raw >> INVISIBLE >> stg >> INVISIBLE >> analytics >> INVISIBLE >> sensible
-    glue >> CONTROL >> catalogo
+    glue >> CONTROL >> catalogo >> CONTROL >> athena
     analytics >> BATCH >> athena
-    catalogo >> CONTROL >> athena
+
     glue >> BATCH >> bodega
     glue >> BATCH >> docdb
+    docdb >> BATCH >> lectura
+    dynamo >> STREAM >> lectura
+    lectura >> BATCH >> gateway >> BATCH >> clientes
     bodega >> BATCH >> tablero
-    [docdb, estado] >> BATCH >> api_lambda >> BATCH >> gateway
 
-    airflow >> CONTROL >> glue
-    glue >> CONTROL >> monitoreo >> CONTROL >> alertas
-    iac >> INVISIBLE >> secretos >> INVISIBLE >> airflow
-    monitoreo >> INVISIBLE >> gobierno
+    mwaa >> CONTROL >> glue
+    secretos >> CONTROL >> glue
+    glue >> CONTROL >> monitoreo >> CONTROL >> alertas >> CONTROL >> telegram
+    terraform >> CONTROL >> iam
+    raw >> GUIA >> analytics >> GUIA >> sensible
+    bodega >> GUIA >> docdb >> GUIA >> dynamo
+    mwaa >> GUIA >> secretos
