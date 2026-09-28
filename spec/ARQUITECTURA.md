@@ -70,3 +70,4 @@ Según el README de floci, revisado el 2026-09-28:
 - [[ADR-007_Diagramas_Como_Codigo]]
 - [[ADR-008_Proteccion_Datos_Personales]]
 - [[ADR-009_Extraccion_Archivo_Masivo]]
+- [[ADR-010_Modelo_Dimensional_Compras]]

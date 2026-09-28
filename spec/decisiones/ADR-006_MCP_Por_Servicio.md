@@ -12,7 +12,7 @@ Se quiere operar el stack desde agentes vía MCP. Investigación del 2026-09-28;
 |---|---|---|---|---|
 | S3, Lambda, DynamoDB, Kinesis, API Gateway | `aws-api-mcp-server` (awslabs/mcp) | Apache-2.0 | **Verificado 2026-09-28:** respeta `AWS_ENDPOINT_URL`; lista S3 y lee el catálogo de Glue de floci | Adoptado en `.mcp.json`, solo lectura |
 | Glue catálogo + Athena | `aws-dataprocessing-mcp-server` (awslabs/mcp) | Apache-2.0 | No confirmado, mismo caso | Probar en fase 2 |
-| Postgres | `crystaldba/postgres-mcp` | MIT | Verificado: `DATABASE_URI` | Adoptar |
+| Postgres | `crystaldba/postgres-mcp` | MIT | **Verificado 2026-09-28** contra la bodega en `localhost:7001` | Adoptado: `--access-mode=restricted`, usuario `pdc_lector` y `--with mcp<2` (el paquete aún usa la API v1 del SDK) |
 | DocumentDB (Mongo local) | `mongodb-js/mongodb-mcp-server` (oficial MongoDB) | Apache-2.0 | Verificado: `MDB_MCP_CONNECTION_STRING` acepta instancia local | Adoptar |
 | OpenMetadata | MCP oficial `https://{host}/mcp` | — | Verificado en docs | Adoptar en fase de gobernanza |
 | OpenRouter | MCP oficial `https://mcp.openrouter.ai/mcp` | — | Verificado en docs | Opcional |

@@ -12,7 +12,8 @@ Cada fase termina con algo que se puede demostrar. No se pasa de fase sin cumpli
 - [x] Probar la imagen `aws-glue-libs` en arm64 leyendo y escribiendo en el S3 de floci (Glue 5, nativa arm64)
 - [x] Esqueleto del repo: README raíz, estructura de carpetas y `utils/glue_utils.py` (se empaqueta cuando lo usen Lambdas y DAGs)
 - [x] Probar `aws-api-mcp-server` contra floci: respeta `AWS_ENDPOINT_URL`, lee S3 y el catálogo de Glue; configurado en `.mcp.json` en modo solo lectura
-- [ ] MCP de Postgres y MongoDB cuando existan esas bases (fases 3 y 5)
+- [x] MCP de Postgres (fase 3)
+- [ ] MCP de MongoDB (fase 5)
 - [x] Primer diagrama con `mingrammer/diagrams`: `docs/diagramas/arquitectura_general.py` → PNG y SVG
 - [x] Diagrama rehecho con líneas ortogonales y fronteras AWS Cloud → Cuenta → Región
 - [ ] Diagrama: íconos propios de Streamlit y OpenMetadata
@@ -29,9 +30,11 @@ Cada fase termina con algo que se puede demostrar. No se pasa de fase sin cumpli
 - [ ] Licitaciones (archivo masivo `lic-da`) e InfoLobby
 
 ## Fase 3 — Bodega dimensional
-- [ ] Modelo en Postgres (dimensiones y hechos de [[Compras_Publicas]])
-- [ ] Carga stage + DELETE/INSERT
-- **Término:** conteos y claves únicas cuadran entre stg y la bodega.
+- [x] Modelo en Postgres (dimensiones y hechos de [[Compras_Publicas]]): ver [[ADR-010_Modelo_Dimensional_Compras]]
+- [x] Carga stage + DELETE/INSERT con job `pdc_dim_compras` y `sql/bodega/02_cargar_compras.sql`
+- [x] MCP de Postgres con rol `pdc_lector` de solo lectura
+- **Término:** conteos y claves únicas cuadran entre stg y la bodega. **Cumplido 2026-09-28** para julio, agosto y septiembre.
+- [ ] Dimensión de producto (rubros ONU) si el análisis la necesita
 
 ## Fase 4 — Orquestación
 - [ ] DAG de compras con sensores y backfill

@@ -1,0 +1,11 @@
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'pdc_lector') THEN
+        CREATE ROLE pdc_lector LOGIN;
+    END IF;
+END $$;
+ALTER ROLE pdc_lector PASSWORD :'clave';
+GRANT CONNECT ON DATABASE bodega TO pdc_lector;
+GRANT USAGE ON SCHEMA dw TO pdc_lector;
+GRANT SELECT ON ALL TABLES IN SCHEMA dw TO pdc_lector;
+ALTER DEFAULT PRIVILEGES IN SCHEMA dw GRANT SELECT ON TABLES TO pdc_lector;

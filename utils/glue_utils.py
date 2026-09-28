@@ -1,3 +1,4 @@
+import json
 from urllib.parse import urlparse
 
 import boto3
@@ -94,3 +95,44 @@ def sql_token_rut(columna_rut, clave):
 def sql_decimal(columna, precision="DECIMAL(20,4)"):
     """Devuelve la expresión Spark SQL que convierte un texto con coma decimal a DECIMAL."""
     return f"CAST(replace(NULLIF(trim({columna}), ''), ',', '.') AS {precision})"
+
+
+# Credenciales de una base guardadas en Secrets Manager
+def obtener_secreto(nombre):
+    """Devuelve el secreto JSON de Secrets Manager como diccionario."""
+    return json.loads(boto3.client("secretsmanager").get_secret_value(SecretId=nombre)["SecretString"])
+
+
+# URL JDBC de Postgres a partir del secreto
+def url_jdbc(secreto, host=None):
+    """Arma la URL JDBC de Postgres; permite reemplazar el host cuando se ejecuta en otra red."""
+    return f"jdbc:postgresql://{host or secreto['host']}:{secreto['port']}/{secreto['dbname']}"
+
+
+# Ejecución de sentencias SQL en una sola transacción
+def ejecutar_sql(spark, url, secreto, sentencias):
+    """Ejecuta las sentencias en orden dentro de una transacción JDBC y devuelve las filas afectadas por cada una."""
+    jvm = spark.sparkContext._jvm
+    conexion = jvm.java.sql.DriverManager.getConnection(url, secreto["username"], secreto["password"])
+    conexion.setAutoCommit(False)
+    afectadas = []
+    try:
+        sentencia = conexion.createStatement()
+        for sql in sentencias:
+            sentencia.execute(sql)
+            afectadas.append(sentencia.getUpdateCount())
+        conexion.commit()
+    except Exception:
+        conexion.rollback()
+        raise
+    finally:
+        conexion.close()
+    return afectadas
+
+
+# Sentencias de un archivo SQL con parámetros
+def leer_sentencias(ruta, **parametros):
+    """Lee un archivo SQL, reemplaza los parámetros {nombre} y lo separa en sentencias."""
+    with open(ruta) as f:
+        texto = f.read().format(**parametros)
+    return [s.strip() for s in texto.split(";") if s.strip()]

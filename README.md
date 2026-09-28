@@ -21,10 +21,11 @@ Docker, Terraform, Python 3.11, AWS CLI, Graphviz y `uv`.
 ## Levantar el entorno
 
 ```bash
-cp .env.example .env                       # completar ticket de Mercado Público y clave de seudonimización
+cp .env.example .env                       # ticket de Mercado Público, clave de seudonimización y claves de Postgres
 docker compose up -d                       # floci en localhost:4566
 python3.11 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
-cd infra/terraform && terraform init && terraform apply && cd -
+set -a; source .env; set +a
+cd infra/terraform && terraform init && TF_VAR_postgres_password=$POSTGRES_PASSWORD terraform apply && cd -
 ```
 
 ## Primer pipeline
@@ -36,6 +37,21 @@ scripts/glue_local.sh pdc_vw_ordenes_compra --fechaParticion 2026-09-26 \
   --baseDatos pdc --claveSeudonimo "$CLAVE_SEUDONIMO"
 ```
 
+## Bodega
+
+```bash
+C=$(docker ps --format '{{.Names}}' | grep floci-rds)
+docker exec -i $C psql -U pdc_admin -d bodega < sql/bodega/01_ddl.sql
+MEMORIA_DRIVER=4g scripts/glue_local.sh pdc_dim_compras --fechaParticion 2026-09 \
+  --bucketOrigen pdc-analytics --secretoBodega pdc/bodega \
+  --rutaSql /home/hadoop/workspace/sql/bodega --hostBodega floci
+```
+
+## MCP
+
+`.mcp.json` define dos servidores de solo lectura: `aws-floci` (API de AWS contra floci) y `postgres-bodega`.
+El segundo toma la clave de la variable `POSTGRES_LECTOR_PASSWORD`, así que el cliente debe iniciarse con el `.env` cargado (`set -a; source .env; set +a`).
+
 ## Estructura
 
 ```
@@ -44,6 +60,7 @@ glue/jobs/          un script por job de Glue
 infra/terraform/    infraestructura contra floci
 lambdas/            código de las Lambdas
 scripts/            utilitarios locales (extracción, Glue local, prueba de MCP)
+sql/bodega/         DDL, carga y roles de la bodega
 spec/               documentación del proyecto (vault de Obsidian)
 utils/              código compartido por jobs, Lambdas y DAGs
 ```

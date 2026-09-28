@@ -31,3 +31,8 @@
 - Fase 2: Lambda `pdc-extractor-oc-masiva` (descarga el zip mensual y lo descomprime en streaming a raw, idempotente por ETag) y EventBridge Scheduler `pdc-extractor-oc-masiva-diario` (cron 09:00 America/Santiago) en `infra/terraform/extraccion.tf`; endpoints scheduler y logs en el provider.
 - Probado: invocación manual cargó septiembre (601 MB) en ~30 s; segunda invocación devolvió `sin_cambios`; un schedule puntual `at()` disparó la Lambda en floci (se borró tras la prueba).
 - Septiembre procesado con `pdc_vw_ordenes_compra_items`: 355.585 ítems, 6.003 personas naturales en el diccionario. Verificado que ningún ítem se repite entre meses. ADR-009.
+- Fase 3: RDS Postgres 16 (`pdc-bodega`) y secreto `pdc/bodega` en Secrets Manager (`infra/terraform/bodega.tf`); proxy de floci expuesto en `localhost:7001`. POSTGRES_PASSWORD en .env, pasado a Terraform como TF_VAR.
+- `sql/bodega/01_ddl.sql` (esquemas stage y dw, dimensiones y dos hechos) y `02_cargar_compras.sql` (MERGE, SCD 2 de proveedor, DELETE/INSERT por mes). Job `pdc_dim_compras`; `utils` suma `obtener_secreto`, `url_jdbc`, `ejecutar_sql` y `leer_sentencias`.
+- Primera carga generó ~1.200 versiones falsas de proveedor por mes (actividad y región varían por sucursal) y vigencias invertidas (fecha de carga); corregido: SCD 2 solo en nombre, vigencia desde el primer día del mes. Bodega truncada y recargada.
+- Validación: julio, agosto y septiembre cuadran con Athena en ítems, órdenes y monto CLP; 0 duplicados, 0 huérfanos, 0 vigencias inconsistentes. ADR-010.
+- MCP de Postgres (`postgres-mcp`, modo restricted, rol `pdc_lector` con `03_rol_lector.sql`) probado: consulta sí, DELETE rechazado. Requiere `--with mcp<2`.
