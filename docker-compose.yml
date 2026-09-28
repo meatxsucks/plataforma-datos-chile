@@ -13,3 +13,31 @@ services:
       - FLOCI_DEFAULT_REGION=us-east-1
       - FLOCI_STORAGE_MODE=hybrid
       - FLOCI_STORAGE_PERSISTENT_PATH=/data
+
+  glue-jobs:
+    build: ./emuladores/glue_jobs
+    container_name: glue-jobs
+    ports:
+      - "4567:4567"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - pdc-glue-trabajo:/trabajo
+    environment:
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
+      - FLOCI_URL=http://floci:4566
+    depends_on:
+      - floci
+
+  airflow-ui:
+    image: alpine/socat
+    container_name: airflow-ui
+    command: TCP-LISTEN:8080,fork,reuseaddr TCP:floci-mwaa-000000000000.us-east-1.pdc-airflow-airflow:8080
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  pdc-glue-trabajo:
+    name: pdc-glue-trabajo

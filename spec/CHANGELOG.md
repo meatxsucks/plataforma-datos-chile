@@ -36,3 +36,8 @@
 - Primera carga generó ~1.200 versiones falsas de proveedor por mes (actividad y región varían por sucursal) y vigencias invertidas (fecha de carga); corregido: SCD 2 solo en nombre, vigencia desde el primer día del mes. Bodega truncada y recargada.
 - Validación: julio, agosto y septiembre cuadran con Athena en ítems, órdenes y monto CLP; 0 duplicados, 0 huérfanos, 0 vigencias inconsistentes. ADR-010.
 - MCP de Postgres (`postgres-mcp`, modo restricted, rol `pdc_lector` con `03_rol_lector.sql`) probado: consulta sí, DELETE rechazado. Requiere `--with mcp<2`.
+- Fase 4: emulador `emuladores/glue_jobs` (servicio `glue-jobs` en docker-compose) que ejecuta `StartJobRun` con el contenedor de Glue y reenvía el resto a floci. ADR-011.
+- Terraform: `glue_jobs.tf` (bucket pdc-glue-assets con jobs, utils y SQL; secreto pdc/seudonimo; jobs pdc_vw_ordenes_compra_items y pdc_dim_compras) y `orquestacion.tf` (VPC, subredes privadas, security group, bucket pdc-mwaa con DAGs, MWAA pdc-airflow 2.10.5 con SecretsManagerBackend y secreto airflow/connections/aws_default).
+- Jobs leen la clave de seudonimización desde Secrets Manager (`--secretoSeudonimo`) y el SQL desde S3; ADR-008 actualizado.
+- `airflow/dags/dag_compras_diario.py` probado: corrida manual y programada en success (ítems 1:38, bodega 0:43), conteos de la bodega sin cambios.
+- Reiniciar floci deja huérfanos los contenedores de MWAA y mueve el puerto del proxy web: `scripts/recrear_mwaa.sh` limpia y recrea; servicio `airflow-ui` (socat) publica la interfaz en `localhost:8080`.

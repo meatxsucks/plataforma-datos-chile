@@ -34,7 +34,7 @@ cd infra/terraform && terraform init && TF_VAR_postgres_password=$POSTGRES_PASSW
 .venv/bin/python scripts/extraer_ordenes_dia.py --fecha 2026-09-26 --limite 60
 scripts/glue_local.sh pdc_vw_ordenes_compra --fechaParticion 2026-09-26 \
   --bucketOrigen pdc-raw --bucketDestino pdc-analytics --bucketSensible pdc-sensible \
-  --baseDatos pdc --claveSeudonimo "$CLAVE_SEUDONIMO"
+  --baseDatos pdc --secretoSeudonimo pdc/seudonimo
 ```
 
 ## Bodega
@@ -44,7 +44,19 @@ C=$(docker ps --format '{{.Names}}' | grep floci-rds)
 docker exec -i $C psql -U pdc_admin -d bodega < sql/bodega/01_ddl.sql
 MEMORIA_DRIVER=4g scripts/glue_local.sh pdc_dim_compras --fechaParticion 2026-09 \
   --bucketOrigen pdc-analytics --secretoBodega pdc/bodega \
-  --rutaSql /home/hadoop/workspace/sql/bodega --hostBodega floci
+  --rutaSql s3://pdc-glue-assets/sql/bodega --hostBodega floci
+```
+
+## Orquestación
+
+`docker compose up -d` levanta floci, el emulador de ejecuciones de Glue (`glue-jobs`, puerto 4567) y el
+reenvío a la interfaz de Airflow (`airflow-ui`, puerto 8080). Terraform crea el entorno MWAA con el DAG
+`dag_compras_diario`: espera a que raw tenga el archivo del día y corre los jobs de Glue por mes.
+
+```bash
+open http://localhost:8080                 # usuario admin
+docker exec $(docker ps --format '{{.Names}}' | grep pdc-airflow-airflow) printenv _AIRFLOW_WWW_USER_PASSWORD
+scripts/recrear_mwaa.sh                    # después de reiniciar floci
 ```
 
 ## MCP
@@ -55,7 +67,9 @@ El segundo toma la clave de la variable `POSTGRES_LECTOR_PASSWORD`, así que el 
 ## Estructura
 
 ```
+airflow/dags/       DAGs de MWAA
 docs/diagramas/     diagramas como código (mingrammer/diagrams)
+emuladores/         servicios locales que completan lo que floci no ejecuta
 glue/jobs/          un script por job de Glue
 infra/terraform/    infraestructura contra floci
 lambdas/            código de las Lambdas

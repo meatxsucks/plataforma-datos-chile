@@ -46,7 +46,7 @@ Según el README de floci, revisado el 2026-09-28:
 | DocumentDB | Real, compatible con MongoDB | Capa gold de las APIs |
 | RDS Postgres | Real, en Docker | Bodega dimensional y monitoreo |
 | Athena | Ejecuta SQL real con DuckDB | Consultas sobre analytics |
-| Glue | **Solo catálogo y Schema Registry; no ejecuta jobs** | Ver [[ADR-002_Glue_Local]] |
+| Glue | **Solo catálogo y Schema Registry; no ejecuta jobs** | Ver [[ADR-002_Glue_Local]] y [[ADR-011_Emulador_Glue_Jobs]] |
 | Redshift | **Solo control plane; no ejecuta SQL** | Ver [[ADR-003_Postgres_Como_Bodega]] |
 
 ## Capas y contratos
@@ -71,3 +71,4 @@ Según el README de floci, revisado el 2026-09-28:
 - [[ADR-008_Proteccion_Datos_Personales]]
 - [[ADR-009_Extraccion_Archivo_Masivo]]
 - [[ADR-010_Modelo_Dimensional_Compras]]
+- [[ADR-011_Emulador_Glue_Jobs]]

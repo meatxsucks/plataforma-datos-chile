@@ -12,7 +12,7 @@ Los scripts de Glue se escriben como en AWS (GlueContext, DynamicFrame, job book
 se ejecutan en el contenedor oficial `amazon/aws-glue-libs`, configurado para leer y escribir en el S3
 de floci. Las tablas resultantes se registran en el catálogo de floci para que Athena las consulte.
 
-Desde Airflow, un operador propio lanza el contenedor en lugar de `GlueJobOperator`.
+Desde Airflow se usa `GlueJobOperator` sin cambios, a través del emulador de ejecuciones descrito en [[ADR-011_Emulador_Glue_Jobs]].
 
 ## Alternativas
 

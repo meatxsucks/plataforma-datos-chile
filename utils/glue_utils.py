@@ -132,7 +132,12 @@ def ejecutar_sql(spark, url, secreto, sentencias):
 
 # Sentencias de un archivo SQL con parámetros
 def leer_sentencias(ruta, **parametros):
-    """Lee un archivo SQL, reemplaza los parámetros {nombre} y lo separa en sentencias."""
-    with open(ruta) as f:
-        texto = f.read().format(**parametros)
+    """Lee un archivo SQL local o en s3://, reemplaza los parámetros {nombre} y lo separa en sentencias."""
+    if ruta.startswith("s3://"):
+        u = urlparse(ruta)
+        texto = boto3.client("s3").get_object(Bucket=u.netloc, Key=u.path.lstrip("/"))["Body"].read().decode("utf-8")
+    else:
+        with open(ruta) as f:
+            texto = f.read()
+    texto = texto.format(**parametros)
     return [s.strip() for s in texto.split(";") if s.strip()]

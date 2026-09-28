@@ -37,8 +37,12 @@ Cada fase termina con algo que se puede demostrar. No se pasa de fase sin cumpli
 - [ ] Dimensión de producto (rubros ONU) si el análisis la necesita
 
 ## Fase 4 — Orquestación
-- [ ] DAG de compras con sensores y backfill
-- **Término:** corrida completa disparada desde Airflow.
+- [x] Emulador de `StartJobRun`/`GetJobRun` ([[ADR-011_Emulador_Glue_Jobs]]) y jobs de Glue definidos en Terraform
+- [x] MWAA `pdc-airflow` (Airflow 2.10.5) en VPC con subredes privadas, conexiones desde Secrets Manager
+- [x] `dag_compras_diario`: meses a procesar → sensor de raw actualizado → Glue ítems → Glue bodega (tareas dinámicas por mes)
+- **Término:** corrida completa disparada desde Airflow. **Cumplido 2026-09-28:** corrida manual y programada en `success`, bodega sin cambios de conteo (idempotente).
+- [ ] Backfill con parámetros desde la interfaz de Airflow
+- [ ] floci no expone un puerto estable para la web de MWAA: se usa `airflow-ui` (socat) en `localhost:8080`
 
 ## Fase 5 — API
 - [ ] INGEST a DocumentDB

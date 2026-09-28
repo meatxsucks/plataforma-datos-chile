@@ -7,6 +7,7 @@ from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
 
 from glue_utils import (
+    obtener_secreto,
     purgar_particion,
     registrar_tabla,
     spark_sql,
@@ -15,13 +16,14 @@ from glue_utils import (
     sql_token_rut,
 )
 
-args = getResolvedOptions(sys.argv, ["JOB_NAME", "fechaParticion", "bucketOrigen", "bucketDestino", "bucketSensible", "baseDatos", "claveSeudonimo"])
+args = getResolvedOptions(sys.argv, ["JOB_NAME", "fechaParticion", "bucketOrigen", "bucketDestino", "bucketSensible", "baseDatos", "secretoSeudonimo"])
 
 sc = SparkContext.getOrCreate()
 glueContext = GlueContext(sc)
 spark = glueContext.spark_session
 job = Job(glueContext)
 job.init(args["JOB_NAME"], args)
+clave = obtener_secreto(args["secretoSeudonimo"])["clave"]
 
 TABLA = "vw_ordenes_compra_items"
 mes = args["fechaParticion"]
@@ -36,7 +38,7 @@ raw = spark.read.options(
 query_base = f"""
 SELECT *,
        {sql_es_persona_natural('rut_proveedor')} AS es_persona_natural,
-       {sql_token_rut('rut_proveedor', args['claveSeudonimo'])} AS token_proveedor
+       {sql_token_rut('rut_proveedor', clave)} AS token_proveedor
 FROM (
     SELECT CAST(IDItem AS BIGINT) AS id_item,
            CAST(ID AS BIGINT) AS id_orden,
