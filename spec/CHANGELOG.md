@@ -53,3 +53,4 @@
 
 - Credenciales del DTPM recibidas, guardadas en `.env` (DTPM_USUARIO, DTPM_CLAVE) y probadas: posiciones (13.946 registros) y alertas (1.006) responden 200. Nota `fuentes/DTPM_Web_Services`; DUDAS 2 resuelta.
 - Documentación oficial del DTPM agregada en `docs/` (PDFs de posicionamiento y alertas, archivo DECO de servicios). `DTPM_Web_Services` reescrita con los 12 campos oficiales por transmisión, tipos de alerta, códigos de error, perfil de la consulta del 2026-10-21 (6.128 buses activos en 5 min, 721 servicios, 1.006 alertas) e ideas para la fase 7. `Transporte_Tiempo_Real` pasa del simulador al feed real.
+- README: sección "Proyectos relacionados" con enlace a `indice-salud-cl` (repo público aparte, dominio de salud).

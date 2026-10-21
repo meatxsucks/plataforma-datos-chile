@@ -96,3 +96,7 @@ utils/              código compartido por jobs, Lambdas y DAGs
 ## Documentación
 
 Arquitectura, decisiones (ADRs), dominios y fuentes en [`spec/`](spec/README.md).
+
+## Proyectos relacionados
+
+- [indice-salud-cl](https://github.com/meatxsucks/indice-salud-cl): índice de entidades de salud de Chile (establecimientos MINSAL/DEIS, planes, coberturas y arancel de la Superintendencia de Salud) con lakehouse DuckDB bronze/silver/gold y búsqueda híbrida en OpenSearch. Repo aparte, mismo enfoque de capas.
