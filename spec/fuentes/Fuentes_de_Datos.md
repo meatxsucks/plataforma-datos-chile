@@ -8,7 +8,7 @@ Revisadas el 2026-09-28. Las credenciales van en `.env`, nunca en el repo.
 | Mercado Público — descargas masivas | `https://transparenciachc.blob.core.windows.net/oc-da/{AAAA}-{M}.zip` (mes sin cero a la izquierda). ~100 MB zip, ~730 MB CSV; separador `;`, latin-1, coma decimal, campos multilínea; una fila por ítem, incluye `EsTratoDirecto`, `EsCompraAgil`, sector, rubros y monto en pesos | Para el histórico (backfill); la API queda para el incremental diario | [[Compras_Publicas]] |
 | InfoLobby | Datos abiertos descargables y endpoint SPARQL (`datos.infolobby.cl/sparql`) | Por confirmar | [[Compras_Publicas]] |
 | GTFS estático Red | Público | — | [[Transporte_Tiempo_Real]] |
-| Posiciones GPS de buses (Web Service de Posicionamiento, actualiza cada 1 min) | Formulario Word del DTPM (`dtpm.cl/archivos/Formulario-26.docx`) enviado a `dys@dtpm.gob.cl`, indicando el uso de los datos | Respuesta en 10 días hábiles; credenciales de desarrollo por 2 meses; producción exige registrar IP pública | [[Transporte_Tiempo_Real]] |
+| Posiciones GPS de buses (Web Service de Posicionamiento, actualiza cada 1 min) | Formulario Word del DTPM (`dtpm.cl/archivos/Formulario-26.docx`) enviado a `dys@dtpm.gob.cl`, indicando el uso de los datos | **Acceso otorgado 2026-10-21** (credenciales de desarrollo por 2 meses, en `.env` como `DTPM_USUARIO` y `DTPM_CLAVE`). Ver [[DTPM_Web_Services]] | [[Transporte_Tiempo_Real]] |
 | Banco Central — API BDE | Registro con correo en la BDE y activación de credenciales en el sitio de la API | 5 consultas por segundo por cuenta | [[Economia_Regional]] |
 | CMF — UF y dólar | API key gratuita | Por confirmar | [[Economia_Regional]] |
 | INE — empleo regional | Descargas públicas | — | [[Economia_Regional]] |

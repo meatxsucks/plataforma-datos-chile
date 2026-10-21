@@ -7,13 +7,12 @@
 ## Fuentes
 
 - GTFS estático de la red (recorridos, paraderos, horarios): público.
-- Posiciones GPS en tiempo real: **no son públicas**; requieren gestión con el DTPM. Ver [[DUDAS]].
+- Posiciones GPS y alertas en tiempo real del DTPM: **acceso otorgado el 2026-10-21**. Ver [[DTPM_Web_Services]].
+- Diccionario de servicios (archivo DECO) para traducir el código interno al recorrido público.
 
 ## Plan para el tiempo real
 
-Mientras no haya acceso al feed real, un generador reproduce el horario del GTFS como posiciones
-simuladas (con atrasos y ruido controlados) y las publica en Kinesis. El consumidor no sabe si el feed
-es real o simulado: cambiar la fuente es cambiar solo el productor.
+Un productor consulta el servicio de posiciones del DTPM cada 1 minuto (el mínimo permitido) y publica cada bus en Kinesis. El simulador desde GTFS queda solo como respaldo para pruebas sin conexión.
 
 ## Flujo
 
