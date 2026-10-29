@@ -11,7 +11,7 @@ from pathlib import Path
 import boto3
 
 URL_OC = "https://api.mercadopublico.cl/servicios/v1/publico/ordenesdecompra.json"
-RAIZ = Path(__file__).resolve().parent.parent
+RAIZ = Path(__file__).resolve().parents[3]
 
 
 # Lectura del .env

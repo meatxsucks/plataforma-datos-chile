@@ -25,16 +25,16 @@ cp .env.example .env                       # ticket de Mercado Público, clave d
 docker compose up -d                       # floci en localhost:4566
 python3.11 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 set -a; source .env; set +a
-scripts/empaquetar_lambda.sh api_compras
+plataforma/scripts/empaquetar_lambda.sh api_compras
 export TF_VAR_postgres_password=$POSTGRES_PASSWORD TF_VAR_clave_seudonimo=$CLAVE_SEUDONIMO TF_VAR_docdb_password=$DOCDB_PASSWORD
-cd infra/terraform && terraform init && terraform apply && cd -
+cd plataforma/terraform && terraform init && terraform apply && cd -
 ```
 
 ## Primer pipeline
 
 ```bash
-.venv/bin/python scripts/extraer_ordenes_dia.py --fecha 2026-09-26 --limite 60
-scripts/glue_local.sh pdc_vw_ordenes_compra --fechaParticion 2026-09-26 \
+.venv/bin/python dominios/compras/scripts/extraer_ordenes_dia.py --fecha 2026-09-26 --limite 60
+plataforma/scripts/glue_local.sh pdc_vw_ordenes_compra --fechaParticion 2026-09-26 \
   --bucketOrigen pdc-raw --bucketDestino pdc-analytics --bucketSensible pdc-sensible \
   --baseDatos pdc --secretoSeudonimo pdc/seudonimo
 ```
@@ -43,8 +43,8 @@ scripts/glue_local.sh pdc_vw_ordenes_compra --fechaParticion 2026-09-26 \
 
 ```bash
 C=$(docker ps --format '{{.Names}}' | grep floci-rds)
-docker exec -i $C psql -U pdc_admin -d bodega < sql/bodega/01_ddl.sql
-MEMORIA_DRIVER=4g scripts/glue_local.sh pdc_dim_compras --fechaParticion 2026-09 \
+docker exec -i $C psql -U pdc_admin -d bodega < dominios/compras/sql/bodega/01_ddl.sql
+MEMORIA_DRIVER=4g plataforma/scripts/glue_local.sh pdc_dim_compras --fechaParticion 2026-09 \
   --bucketOrigen pdc-analytics --secretoBodega pdc/bodega \
   --rutaSql s3://pdc-glue-assets/sql/bodega --hostBodega floci
 ```
@@ -58,17 +58,17 @@ reenvío a la interfaz de Airflow (`airflow-ui`, puerto 8080). Terraform crea el
 ```bash
 open http://localhost:8080                 # usuario admin
 docker exec $(docker ps --format '{{.Names}}' | grep pdc-airflow-airflow) printenv _AIRFLOW_WWW_USER_PASSWORD
-scripts/recrear_mwaa.sh                    # después de reiniciar floci
-scripts/publicar_dags.sh                   # después de cambiar un DAG
+plataforma/scripts/recrear_mwaa.sh                    # después de reiniciar floci
+plataforma/scripts/publicar_dags.sh                   # después de cambiar un DAG
 ```
 
 ## API de datos
 
 ```bash
-scripts/empaquetar_lambda.sh api_compras   # antes de terraform apply
-scripts/crear_api_key.sh                    # guarda API_KEY_DEMO en .env
+plataforma/scripts/empaquetar_lambda.sh api_compras   # antes de terraform apply
+plataforma/scripts/crear_api_key.sh                    # guarda API_KEY_DEMO en .env
 set -a; source .env; set +a
-URL=$(terraform -chdir=infra/terraform output -raw url_api)
+URL=$(terraform -chdir=plataforma/terraform output -raw url_api)
 curl -H "x-api-key: $API_KEY_DEMO" "$URL/compras/organismos/7248/resumen?mes=2026-09"
 curl -H "x-api-key: $API_KEY_DEMO" "$URL/compras/alertas/concentracion?hhi_min=5000&limite=10"
 ```
@@ -81,14 +81,14 @@ El segundo toma la clave de la variable `POSTGRES_LECTOR_PASSWORD`, así que el 
 ## Estructura
 
 ```
-airflow/dags/       DAGs de MWAA
+dominios/compras/dags/       DAGs de MWAA
 docs/diagramas/     diagramas como código (mingrammer/diagrams)
-emuladores/         servicios locales que completan lo que floci no ejecuta
-glue/jobs/          un script por job de Glue
-infra/terraform/    infraestructura contra floci
+plataforma/emuladores/         servicios locales que completan lo que floci no ejecuta
+dominios/compras/glue/          un script por job de Glue
+plataforma/terraform/    infraestructura contra floci
 lambdas/            código de las Lambdas
 scripts/            utilitarios locales (extracción, Glue local, prueba de MCP)
-sql/bodega/         DDL, carga y roles de la bodega
+dominios/compras/sql/bodega/         DDL, carga y roles de la bodega
 spec/               documentación del proyecto (vault de Obsidian)
 utils/              código compartido por jobs, Lambdas y DAGs
 ```

@@ -15,7 +15,7 @@ services:
       - FLOCI_STORAGE_PERSISTENT_PATH=/data
 
   glue-jobs:
-    build: ./emuladores/glue_jobs
+    build: ./plataforma/emuladores/glue_jobs
     container_name: glue-jobs
     ports:
       - "4567:4567"

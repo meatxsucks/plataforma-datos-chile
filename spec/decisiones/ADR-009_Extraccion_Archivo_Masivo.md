@@ -14,7 +14,7 @@ ChileCompra publica además un archivo por mes (`oc-da/{AAAA}-{M}.zip`) con toda
 - Descarga el zip del mes en curso y, los primeros 5 días del mes, también el del mes anterior para capturar cambios tardíos.
 - Descomprime en streaming directo a `s3://pdc-raw/compras/ordenes_compra_masiva/mes=AAAA-MM/`, guardando en la metadata el ETag de origen.
 - Si el ETag no cambió desde la última carga, no hace nada (idempotente).
-- La API queda para consultas puntuales de detalle (`scripts/extraer_ordenes_dia.py`).
+- La API queda para consultas puntuales de detalle (`dominios/compras/scripts/extraer_ordenes_dia.py`).
 
 ## Alternativas
 

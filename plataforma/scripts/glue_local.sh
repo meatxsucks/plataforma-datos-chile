@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Corre un job de Glue en la imagen oficial apuntando al S3 y al catálogo de floci.
-# Uso: scripts/glue_local.sh <job> --arg1 valor1 --arg2 valor2 ...
+# Uso: plataforma/scripts/glue_local.sh <job> --arg1 valor1 --arg2 valor2 ...
 set -euo pipefail
 
-RAIZ="$(cd "$(dirname "$0")/.." && pwd)"
+RAIZ="$(cd "$(dirname "$0")/../.." && pwd)"
 JOB="$1"; shift
+SCRIPT=$(cd "$RAIZ" && ls dominios/*/glue/"$JOB".py)
 set -a; source "$RAIZ/.env"; set +a
 
 docker run --rm \
@@ -25,7 +26,7 @@ docker run --rm \
     --conf spark.hadoop.fs.s3a.aws.credentials.provider=org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider \
     --conf spark.hadoop.fs.s3a.access.key=test \
     --conf spark.hadoop.fs.s3a.secret.key=test \
-    --py-files /home/hadoop/workspace/utils/glue_utils.py \
-    "/home/hadoop/workspace/glue/jobs/$JOB.py" \
+    --py-files /home/hadoop/workspace/plataforma/utils/glue_utils.py \
+    "/home/hadoop/workspace/$SCRIPT" \
     --JOB_NAME "$JOB" \
     "$@"

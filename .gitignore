@@ -3,6 +3,6 @@
 __pycache__/
 .DS_Store
 .floci-data/
-infra/terraform/.terraform/
-infra/terraform/.build/
+plataforma/terraform/.terraform/
+plataforma/terraform/.build/
 *.tfstate*

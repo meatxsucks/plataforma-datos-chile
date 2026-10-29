@@ -10,7 +10,7 @@ Cada fase termina con algo que se puede demostrar. No se pasa de fase sin cumpli
 - [x] `docker-compose.yml` con floci, persistencia configurada (floci 2.1.0, modo hybrid; sobrevive a reinicio)
 - [x] Terraform con provider apuntando a floci: bucket de prueba y Lambda "hola"
 - [x] Probar la imagen `aws-glue-libs` en arm64 leyendo y escribiendo en el S3 de floci (Glue 5, nativa arm64)
-- [x] Esqueleto del repo: README raíz, estructura de carpetas y `utils/glue_utils.py` (se empaqueta cuando lo usen Lambdas y DAGs)
+- [x] Esqueleto del repo: README raíz, estructura de carpetas y `plataforma/utils/glue_utils.py` (se empaqueta cuando lo usen Lambdas y DAGs)
 - [x] Probar `aws-api-mcp-server` contra floci: respeta `AWS_ENDPOINT_URL`, lee S3 y el catálogo de Glue; configurado en `.mcp.json` en modo solo lectura
 - [x] MCP de Postgres (fase 3)
 - [ ] MCP de MongoDB (fase 5)
@@ -31,7 +31,7 @@ Cada fase termina con algo que se puede demostrar. No se pasa de fase sin cumpli
 
 ## Fase 3 — Bodega dimensional
 - [x] Modelo en Postgres (dimensiones y hechos de [[Compras_Publicas]]): ver [[ADR-010_Modelo_Dimensional_Compras]]
-- [x] Carga stage + DELETE/INSERT con job `pdc_dim_compras` y `sql/bodega/02_cargar_compras.sql`
+- [x] Carga stage + DELETE/INSERT con job `pdc_dim_compras` y `dominios/compras/sql/bodega/02_cargar_compras.sql`
 - [x] MCP de Postgres con rol `pdc_lector` de solo lectura
 - **Término:** conteos y claves únicas cuadran entre stg y la bodega. **Cumplido 2026-09-28** para julio, agosto y septiembre.
 - [ ] Dimensión de producto (rubros ONU) si el análisis la necesita

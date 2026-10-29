@@ -33,11 +33,11 @@ resource "aws_s3_bucket" "mwaa" {
 }
 
 resource "aws_s3_object" "dags" {
-  for_each = fileset("${path.module}/../../airflow/dags", "*.py")
+  for_each = { for f in fileset("${path.module}/../../dominios", "*/dags/*.py") : basename(f) => f }
   bucket   = aws_s3_bucket.mwaa.bucket
-  key      = "dags/${each.value}"
-  source   = "${path.module}/../../airflow/dags/${each.value}"
-  etag     = filemd5("${path.module}/../../airflow/dags/${each.value}")
+  key      = "dags/${each.key}"
+  source   = "${path.module}/../../dominios/${each.value}"
+  etag     = filemd5("${path.module}/../../dominios/${each.value}")
 }
 
 resource "aws_iam_role" "mwaa" {

@@ -1,6 +1,6 @@
 data "archive_file" "extractor_oc_masiva" {
   type        = "zip"
-  source_dir  = "${path.module}/../../lambdas/extractor_oc_masiva"
+  source_dir  = "${path.module}/../../dominios/compras/lambdas/extractor_oc_masiva"
   output_path = "${path.module}/.build/extractor_oc_masiva.zip"
 }
 

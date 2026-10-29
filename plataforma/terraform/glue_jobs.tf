@@ -9,9 +9,9 @@ resource "aws_s3_bucket" "glue_assets" {
 
 locals {
   archivos_glue = merge(
-    { for f in fileset("${path.module}/../../glue/jobs", "*.py") : "jobs/${f}" => "${path.module}/../../glue/jobs/${f}" },
-    { for f in fileset("${path.module}/../../sql", "**/*.sql") : "sql/${f}" => "${path.module}/../../sql/${f}" },
-    { "utils/glue_utils.py" = "${path.module}/../../utils/glue_utils.py" },
+    { for f in fileset("${path.module}/../../dominios", "*/glue/*.py") : "jobs/${basename(f)}" => "${path.module}/../../dominios/${f}" },
+    { for f in fileset("${path.module}/../../dominios", "*/sql/**/*.sql") : "sql/${join("/", slice(split("/", f), 2, length(split("/", f))))}" => "${path.module}/../../dominios/${f}" },
+    { "utils/glue_utils.py" = "${path.module}/../utils/glue_utils.py" },
   )
   ruta_assets = "s3://${aws_s3_bucket.glue_assets.bucket}"
   argumentos_comunes = {

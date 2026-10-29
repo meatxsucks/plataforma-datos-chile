@@ -6,7 +6,7 @@
 
 | Paso | Componente | Detalle |
 |---|---|---|
-| 1 | `pdc_api_resumen_organismos` | Consulta la bodega (`sql/api/resumen_organismos.sql`) y escribe en `s3://pdc-api/resumen_organismos/mes=AAAA-MM/` un documento por organismo con los 5 principales proveedores anidados |
+| 1 | `pdc_api_resumen_organismos` | Consulta la bodega (`dominios/compras/sql/api/resumen_organismos.sql`) y escribe en `s3://pdc-api/resumen_organismos/mes=AAAA-MM/` un documento por organismo con los 5 principales proveedores anidados |
 | 2 | `pdc_api_resumen_organismos_ingest` | Carga los documentos en una colección temporal de DocumentDB, valida el conteo y la renombra sobre `resumen_organismos_AAAA_MM` (`renameCollection` con `dropTarget`, atómico). Registra el mes en `estado_api` |
 | 3 | Lambda `pdc-api-compras` | Lee DocumentDB con el secreto `pdc/docdb`; cliente reutilizado entre invocaciones |
 | 4 | API Gateway REST `pdc-api-compras`, etapa `v1` | Integración proxy con la Lambda; API key obligatoria; plan de uso de 10 req/s (ráfaga 20) y 1.000 req/día |
@@ -26,7 +26,7 @@ Replica el patrón de colección por fecha de corte: publicar un mes nuevo o rec
 
 ## Limitaciones de floci encontradas
 
-- El provider de Terraform falla al leer la API key que crea floci (no devuelve fechas): la key se crea con `scripts/crear_api_key.sh`.
+- El provider de Terraform falla al leer la API key que crea floci (no devuelve fechas): la key se crea con `plataforma/scripts/crear_api_key.sh`.
 - floci no devuelve `timeoutInMillis` de la integración y rechaza actualizarlo: `ignore_changes` en Terraform.
 - La imagen de Glue no trae `pymongo`: el emulador soporta `--additional-python-modules`, como Glue real.
 

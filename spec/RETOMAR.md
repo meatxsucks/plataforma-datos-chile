@@ -10,14 +10,14 @@ Los contenedores de floci (Postgres, DocumentDB, Airflow y DuckDB) quedaron **de
 cd plataforma-datos-chile
 docker compose up -d                                   # floci, glue-jobs, airflow-ui
 docker ps -a --format '{{.Names}}' | grep -E '^floci-(rds|docdb|duck)' | xargs docker start
-scripts/recrear_mwaa.sh                                # Airflow queda huérfano al reiniciar floci
-scripts/publicar_dags.sh
+plataforma/scripts/recrear_mwaa.sh                                # Airflow queda huérfano al reiniciar floci
+plataforma/scripts/publicar_dags.sh
 ```
 
 Revisar después:
 
 - `nc -z localhost 7001` responde (bodega).
-- `curl -H "x-api-key: $API_KEY_DEMO" "$(terraform -chdir=infra/terraform output -raw url_api)/compras/alertas/concentracion"` responde 200.
+- `curl -H "x-api-key: $API_KEY_DEMO" "$(terraform -chdir=plataforma/terraform output -raw url_api)/compras/alertas/concentracion"` responde 200.
 - La interfaz de Airflow en `http://localhost:8080` (usuario `admin`; la clave se obtiene con `docker exec <contenedor airflow> printenv _AIRFLOW_WWW_USER_PASSWORD`).
 
 ## Siguiente paso

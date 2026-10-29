@@ -30,7 +30,7 @@ La primera versión versionaba también actividad y región: agosto generó 1.20
 ## Carga
 
 1. Glue lee la partición de `vw_ordenes_compra_items` y sobrescribe `stage.oc_items` por JDBC.
-2. Una sola transacción ejecuta `sql/bodega/02_cargar_compras.sql`: MERGE de dimensiones, SCD 2 de proveedor, DELETE del mes en los hechos e INSERT resolviendo claves sustitutas.
+2. Una sola transacción ejecuta `dominios/compras/sql/bodega/02_cargar_compras.sql`: MERGE de dimensiones, SCD 2 de proveedor, DELETE del mes en los hechos e INSERT resolviendo claves sustitutas.
 
 `MERGE` existe en Postgres 15+ y en Redshift, así que el SQL es portable (ver [[ADR-003_Postgres_Como_Bodega]]).
 

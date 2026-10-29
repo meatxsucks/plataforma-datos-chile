@@ -12,7 +12,7 @@ resource "aws_iam_role" "lambda" {
 
 data "archive_file" "hola" {
   type        = "zip"
-  source_dir  = "${path.module}/../../lambdas/hola"
+  source_dir  = "${path.module}/../lambdas/hola"
   output_path = "${path.module}/.build/hola.zip"
 }
 

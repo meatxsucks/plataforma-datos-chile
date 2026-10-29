@@ -6,9 +6,9 @@ Credenciales en `.env` (`DTPM_USUARIO`, `DTPM_CLAVE`), nunca en el repo.
 
 Documentación oficial en `docs/`:
 
-- `docs/DyS Web Service Posicionamiento.pdf`
-- `docs/DyS Web Service Alertas.pdf`
-- `docs/DECO_VIGENTES_202607061152.csv` (diccionario de servicios)
+- `dominios/transporte/docs/DyS Web Service Posicionamiento.pdf`
+- `dominios/transporte/docs/DyS Web Service Alertas.pdf`
+- `dominios/transporte/docs/DECO_VIGENTES_202607061152.csv` (diccionario de servicios)
 
 ## Acceso
 
