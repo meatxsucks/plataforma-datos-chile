@@ -54,3 +54,11 @@
 - Credenciales del DTPM recibidas, guardadas en `.env` (DTPM_USUARIO, DTPM_CLAVE) y probadas: posiciones (13.946 registros) y alertas (1.006) responden 200. Nota `fuentes/DTPM_Web_Services`; DUDAS 2 resuelta.
 - Documentación oficial del DTPM agregada en `docs/` (PDFs de posicionamiento y alertas, archivo DECO de servicios). `DTPM_Web_Services` reescrita con los 12 campos oficiales por transmisión, tipos de alerta, códigos de error, perfil de la consulta del 2026-10-21 (6.128 buses activos en 5 min, 721 servicios, 1.006 alertas) e ideas para la fase 7. `Transporte_Tiempo_Real` pasa del simulador al feed real.
 - README: sección "Proyectos relacionados" con enlace a `indice-salud-cl` (repo público aparte, dominio de salud).
+
+## 2026-11-01
+
+- Fase 6: esquema `monitoreo` (`plataforma/sql/monitoreo/01_ddl.sql`), Lambda `pdc-monitoreo` (`plataforma/lambdas/monitoreo`, pg8000 contra la bodega) y `plataforma/terraform/monitoreo.tf`. Chequeos: frescura del CSV en raw (máx. 36 h), caída de ítems mayor al 10% contra la medición anterior e ítems sin órdenes. Cada falla crea una alerta; si hay `OPENROUTER_API_KEY` pide una explicación al modelo `openrouter/free` (ADR-005).
+- DAG `dag_compras_diario`: tarea final `monitoreo_calidad` que invoca la Lambda por mes.
+- Probado: borrado del 20% de septiembre (71.110 ítems) hizo fallar `volumen_items` (355.585 a 284.475); tras restaurar volvió a `ok`. `frescura_raw` falla de verdad: el archivo de septiembre tiene más de 34 días. La explicación del modelo llegó en una de tres alertas (el modelo gratuito es intermitente).
+- `empaquetar_lambda.sh`: no falla con Lambdas de `plataforma/lambdas/` y empaqueta sin `.pyc` (OneDrive daba timeouts al leerlos). `recrear_mwaa.sh` pasa `docdb_password` y la clave de OpenRouter.
+- `scramp` fijado en 1.4.5 porque `pg8000` 1.31.2 falla con versiones nuevas.

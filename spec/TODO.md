@@ -57,8 +57,12 @@ Cada fase termina con algo que se puede demostrar. No se pasa de fase sin cumpli
 - [ ] Reintentar la ejecución fallida desde la interfaz (Clear sobre las tareas de Glue) y confirmar que llega hasta la ingesta de la API.
 
 ## Fase 6 — Monitoreo
-- [ ] Tablas de monitoreo, chequeos de frescura y volumen, alertas
-- **Término:** una carga rota a propósito genera alerta.
+- [x] Esquema `monitoreo` (chequeos y alertas) en la bodega y Lambda `pdc-monitoreo` con tres chequeos: frescura de raw, caída de volumen e ítems sin órdenes
+- [x] Tarea `monitoreo_calidad` al final de `dag_compras_diario`
+- [ ] Alertas a Telegram
+- [ ] La Lambda registra por qué falla la explicación del modelo (hoy descarta el error) y reintenta una vez
+- [ ] Panel de Grafana sobre `monitoreo.*`
+- **Término:** una carga rota a propósito genera alerta. **Cumplido 2026-11-01.**
 
 ## Fase 6b — Gobernanza
 - [ ] OpenMetadata en Docker (por turnos), ingesta de metadata de Postgres y Airflow, glosario y dueños

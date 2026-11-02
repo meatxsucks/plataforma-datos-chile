@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timedelta
 
 import pendulum
@@ -5,6 +6,7 @@ from airflow import DAG
 from airflow.decorators import task
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 from airflow.providers.amazon.aws.operators.glue import GlueJobOperator
+from airflow.providers.amazon.aws.operators.lambda_function import LambdaInvokeFunctionOperator
 from airflow.sensors.python import PythonSensor
 
 ZONA = pendulum.timezone("America/Santiago")
@@ -93,4 +95,10 @@ with DAG(
         max_active_tis_per_dagrun=1,
     ).expand(script_args=meses.map(lambda mes: {"--fechaParticion": mes}))
 
-    meses >> esperar_raw >> items >> bodega >> api >> ingesta
+    monitoreo = LambdaInvokeFunctionOperator.partial(
+        task_id="monitoreo_calidad",
+        function_name="pdc-monitoreo",
+        max_active_tis_per_dagrun=1,
+    ).expand(payload=meses.map(lambda mes: json.dumps({"mes": mes})))
+
+    meses >> esperar_raw >> items >> bodega >> api >> ingesta >> monitoreo
