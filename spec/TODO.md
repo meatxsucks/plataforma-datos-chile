@@ -74,7 +74,8 @@ Cada fase termina con algo que se puede demostrar. No se pasa de fase sin cumpli
 - [x] Solicitud al DTPM enviada el 2026-09-28
 - [x] Credenciales recibidas el 2026-10-21 y probadas: posiciones y alertas responden 200 ([[DTPM_Web_Services]]). Vencen ~2026-12-21
 - [ ] Productor real: consultar posiciones cada minuto → Kinesis (reemplaza al simulado)
-- [ ] GTFS estático a la bodega
+- [x] DECO a la bodega (`dim_servicio`, `dim_recorrido`)
+- [ ] GTFS estático a la bodega (hay que ubicar y descargar el archivo; no está en el repo)
 - [ ] Productor simulado → Kinesis → Lambda → DynamoDB + S3
 - [ ] Glue horario de puntualidad
 - **Término:** API devuelve buses activos de un recorrido y su puntualidad de la última hora.
