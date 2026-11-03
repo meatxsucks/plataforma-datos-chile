@@ -1,0 +1,14 @@
+apiVersion: 1
+datasources:
+  - name: Bodega
+    uid: bodega
+    type: postgres
+    url: floci:7001
+    user: pdc_lector
+    isDefault: true
+    jsonData:
+      database: bodega
+      sslmode: disable
+      postgresVersion: 1600
+    secureJsonData:
+      password: ${POSTGRES_LECTOR_PASSWORD}

@@ -1,0 +1,6 @@
+apiVersion: 1
+providers:
+  - name: pdc
+    type: file
+    options:
+      path: /var/lib/grafana/dashboards

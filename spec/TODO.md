@@ -61,7 +61,7 @@ Cada fase termina con algo que se puede demostrar. No se pasa de fase sin cumpli
 - [x] Tarea `monitoreo_calidad` al final de `dag_compras_diario`
 - [ ] Alertas a Telegram
 - [ ] La Lambda registra por qué falla la explicación del modelo (hoy descarta el error) y reintenta una vez
-- [ ] Panel de Grafana sobre `monitoreo.*`
+- [x] Panel de Grafana sobre `monitoreo.*`
 - **Término:** una carga rota a propósito genera alerta. **Cumplido 2026-11-01.**
 
 ## Fase 6b — Gobernanza

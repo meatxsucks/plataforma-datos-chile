@@ -62,3 +62,4 @@
 - Probado: borrado del 20% de septiembre (71.110 ítems) hizo fallar `volumen_items` (355.585 a 284.475); tras restaurar volvió a `ok`. `frescura_raw` falla de verdad: el archivo de septiembre tiene más de 34 días. La explicación del modelo llegó en una de tres alertas (el modelo gratuito es intermitente).
 - `empaquetar_lambda.sh`: no falla con Lambdas de `plataforma/lambdas/` y empaqueta sin `.pyc` (OneDrive daba timeouts al leerlos). `recrear_mwaa.sh` pasa `docdb_password` y la clave de OpenRouter.
 - `scramp` fijado en 1.4.5 porque `pg8000` 1.31.2 falla con versiones nuevas.
+- Grafana 11 en `docker-compose.yml` (puerto 3000, acceso anónimo solo local) con datasource `Bodega` (rol `pdc_lector`) y panel `Monitoreo` provisionados desde `plataforma/grafana/`. Primera captura en `docs/capturas/grafana_monitoreo.png` mostrando la carga rota de septiembre y su recuperación.

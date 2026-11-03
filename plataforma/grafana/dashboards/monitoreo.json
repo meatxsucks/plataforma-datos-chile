@@ -1,0 +1,239 @@
+{
+ "uid": "pdc-monitoreo",
+ "title": "Plataforma de Datos Chile — Monitoreo",
+ "timezone": "browser",
+ "refresh": "30s",
+ "schemaVersion": 39,
+ "time": {
+  "from": "now-7d",
+  "to": "now"
+ },
+ "panels": [
+  {
+   "id": 1,
+   "title": "Chequeos con falla (24 h)",
+   "type": "stat",
+   "datasource": {
+    "type": "postgres",
+    "uid": "bodega"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 0,
+    "w": 6,
+    "h": 4
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "postgres",
+      "uid": "bodega"
+     },
+     "format": "table",
+     "rawQuery": true,
+     "editorMode": "code",
+     "rawSql": "select count(*) as fallas from monitoreo.chequeos where estado='falla' and ejecutado_en > now() - interval '24 hours'"
+    }
+   ],
+   "options": {
+    "colorMode": "background"
+   },
+   "fieldConfig": {
+    "defaults": {
+     "thresholds": {
+      "mode": "absolute",
+      "steps": [
+       {
+        "color": "green",
+        "value": null
+       },
+       {
+        "color": "red",
+        "value": 1
+       }
+      ]
+     }
+    },
+    "overrides": []
+   }
+  },
+  {
+   "id": 2,
+   "title": "Alertas totales",
+   "type": "stat",
+   "datasource": {
+    "type": "postgres",
+    "uid": "bodega"
+   },
+   "gridPos": {
+    "x": 6,
+    "y": 0,
+    "w": 6,
+    "h": 4
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "postgres",
+      "uid": "bodega"
+     },
+     "format": "table",
+     "rawQuery": true,
+     "editorMode": "code",
+     "rawSql": "select count(*) as alertas from monitoreo.alertas"
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "title": "Ítems en bodega por mes",
+   "type": "barchart",
+   "datasource": {
+    "type": "postgres",
+    "uid": "bodega"
+   },
+   "gridPos": {
+    "x": 12,
+    "y": 0,
+    "w": 12,
+    "h": 8
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "postgres",
+      "uid": "bodega"
+     },
+     "format": "table",
+     "rawQuery": true,
+     "editorMode": "code",
+     "rawSql": "select mes, count(*) as items from dw.fact_orden_compra_item group by 1 order by 1"
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "title": "Último estado por chequeo",
+   "type": "table",
+   "datasource": {
+    "type": "postgres",
+    "uid": "bodega"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 4,
+    "w": 12,
+    "h": 8
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "postgres",
+      "uid": "bodega"
+     },
+     "format": "table",
+     "rawQuery": true,
+     "editorMode": "code",
+     "rawSql": "select distinct on (chequeo, mes) chequeo, mes, estado, detalle, ejecutado_en from monitoreo.chequeos order by chequeo, mes, ejecutado_en desc"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {},
+    "overrides": [
+     {
+      "matcher": {
+       "id": "byName",
+       "options": "estado"
+      },
+      "properties": [
+       {
+        "id": "mappings",
+        "value": [
+         {
+          "type": "value",
+          "options": {
+           "ok": {
+            "color": "green",
+            "text": "ok"
+           },
+           "falla": {
+            "color": "red",
+            "text": "falla"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "custom.cellOptions",
+        "value": {
+         "type": "color-background"
+        }
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": 5,
+   "title": "Volumen de ítems medido en el tiempo",
+   "type": "timeseries",
+   "datasource": {
+    "type": "postgres",
+    "uid": "bodega"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 12,
+    "w": 12,
+    "h": 8
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "postgres",
+      "uid": "bodega"
+     },
+     "format": "time_series",
+     "rawQuery": true,
+     "editorMode": "code",
+     "rawSql": "select ejecutado_en as time, valor as items, mes as metric from monitoreo.chequeos where chequeo='volumen_items' order by 1"
+    }
+   ]
+  },
+  {
+   "id": 6,
+   "title": "Alertas y explicación del modelo",
+   "type": "table",
+   "datasource": {
+    "type": "postgres",
+    "uid": "bodega"
+   },
+   "gridPos": {
+    "x": 12,
+    "y": 12,
+    "w": 12,
+    "h": 8
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "postgres",
+      "uid": "bodega"
+     },
+     "format": "table",
+     "rawQuery": true,
+     "editorMode": "code",
+     "rawSql": "select a.creada_en, c.chequeo, a.mensaje, coalesce(a.explicacion,'(sin explicación)') as explicacion from monitoreo.alertas a join monitoreo.chequeos c using(chequeo_id) order by 1 desc limit 20"
+    }
+   ]
+  }
+ ]
+}
