@@ -38,11 +38,16 @@ def activos(datos, ahora):
         c = texto.split(";")[:12]
         if len(c) < 12:
             continue
-        gps = datetime.strptime(c[0], "%d-%m-%Y %H:%M:%S").replace(tzinfo=timezone.utc)
-        if gps < limite:
+        try:
+            gps = datetime.strptime(c[0], "%d-%m-%Y %H:%M:%S").replace(tzinfo=timezone.utc)
+            if gps < limite:
+                continue
+            r = dict(zip(CAMPOS, c))
+            r["fecha_gps"] = gps.isoformat()
+            for campo in ("latitud", "longitud", "velocidad"):
+                r[campo] = float(r[campo])
+        except ValueError:
             continue
-        r = dict(zip(CAMPOS, c))
-        r["fecha_gps"] = gps.isoformat()
         r["consulta"] = datos["fecha_consulta"]
         registros.append(r)
     return registros

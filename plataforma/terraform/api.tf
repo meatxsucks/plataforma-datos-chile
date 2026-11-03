@@ -129,7 +129,7 @@ resource "aws_api_gateway_integration" "lambda" {
 resource "aws_api_gateway_deployment" "compras" {
   rest_api_id = aws_api_gateway_rest_api.compras.id
   triggers = {
-    version = sha1(jsonencode([aws_api_gateway_method.get, aws_api_gateway_integration.lambda]))
+    version = sha1(jsonencode([aws_api_gateway_method.get, aws_api_gateway_integration.lambda, aws_api_gateway_method.transporte_buses, aws_api_gateway_integration.transporte_buses]))
   }
   lifecycle {
     create_before_destroy = true

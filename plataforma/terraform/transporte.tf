@@ -98,3 +98,63 @@ resource "aws_scheduler_schedule" "productor_posiciones" {
     input    = jsonencode({})
   }
 }
+
+data "archive_file" "api_transporte" {
+  type        = "zip"
+  source_dir  = "${path.module}/../../dominios/transporte/lambdas/api_transporte"
+  output_path = "${path.module}/.build/api_transporte.zip"
+}
+
+resource "aws_lambda_function" "api_transporte" {
+  function_name    = "pdc-api-transporte"
+  role             = aws_iam_role.lambda.arn
+  runtime          = "python3.12"
+  handler          = "handler.handler"
+  filename         = data.archive_file.api_transporte.output_path
+  source_code_hash = data.archive_file.api_transporte.output_base64sha256
+  timeout          = 30
+  memory_size      = 256
+  environment {
+    variables = { TABLA = aws_dynamodb_table.buses_actuales.name }
+  }
+}
+
+resource "aws_api_gateway_resource" "transporte" {
+  rest_api_id = aws_api_gateway_rest_api.compras.id
+  parent_id   = aws_api_gateway_rest_api.compras.root_resource_id
+  path_part   = "transporte"
+}
+
+resource "aws_api_gateway_resource" "transporte_buses" {
+  rest_api_id = aws_api_gateway_rest_api.compras.id
+  parent_id   = aws_api_gateway_resource.transporte.id
+  path_part   = "buses"
+}
+
+resource "aws_api_gateway_method" "transporte_buses" {
+  rest_api_id      = aws_api_gateway_rest_api.compras.id
+  resource_id      = aws_api_gateway_resource.transporte_buses.id
+  http_method      = "GET"
+  authorization    = "NONE"
+  api_key_required = true
+}
+
+resource "aws_api_gateway_integration" "transporte_buses" {
+  rest_api_id             = aws_api_gateway_rest_api.compras.id
+  resource_id             = aws_api_gateway_resource.transporte_buses.id
+  http_method             = aws_api_gateway_method.transporte_buses.http_method
+  type                    = "AWS_PROXY"
+  integration_http_method = "POST"
+  uri                     = aws_lambda_function.api_transporte.invoke_arn
+  lifecycle {
+    ignore_changes = [timeout_milliseconds]
+  }
+}
+
+resource "aws_lambda_permission" "api_gateway_transporte" {
+  statement_id  = "PermitirApiGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.api_transporte.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.compras.execution_arn}/*/*"
+}
