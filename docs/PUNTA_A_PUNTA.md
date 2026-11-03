@@ -35,6 +35,7 @@ En los diagramas, **(en construcción)** marca lo que `spec/TODO.md` todavía no
 ### 2.1 Plataforma completa
 
 ```mermaid
+%%{init: {"flowchart": {"curve": "step"}}}%%
 flowchart LR
     subgraph FUENTES["Fuentes"]
         MP["Mercado Público<br/>archivo masivo mensual"]
