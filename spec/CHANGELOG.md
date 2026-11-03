@@ -63,3 +63,4 @@
 - `empaquetar_lambda.sh`: no falla con Lambdas de `plataforma/lambdas/` y empaqueta sin `.pyc` (OneDrive daba timeouts al leerlos). `recrear_mwaa.sh` pasa `docdb_password` y la clave de OpenRouter.
 - `scramp` fijado en 1.4.5 porque `pg8000` 1.31.2 falla con versiones nuevas.
 - Grafana 11 en `docker-compose.yml` (puerto 3000, acceso anónimo solo local) con datasource `Bodega` (rol `pdc_lector`) y panel `Monitoreo` provisionados desde `plataforma/grafana/`. Primera captura en `docs/capturas/grafana_monitoreo.png` mostrando la carga rota de septiembre y su recuperación.
+- `docs/DEMO.md`: guion de demo de punta a punta con las ventanas a abrir (Airflow, Grafana, consola de floci, logs de Glue), qué decir en cada capa, la prueba de la carga rota y preguntas probables.
