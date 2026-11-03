@@ -64,3 +64,4 @@
 - `scramp` fijado en 1.4.5 porque `pg8000` 1.31.2 falla con versiones nuevas.
 - Grafana 11 en `docker-compose.yml` (puerto 3000, acceso anónimo solo local) con datasource `Bodega` (rol `pdc_lector`) y panel `Monitoreo` provisionados desde `plataforma/grafana/`. Primera captura en `docs/capturas/grafana_monitoreo.png` mostrando la carga rota de septiembre y su recuperación.
 - `docs/DEMO.md`: guion de demo de punta a punta con las ventanas a abrir (Airflow, Grafana, consola de floci, logs de Glue), qué decir en cada capa, la prueba de la carga rota y preguntas probables.
+- `pdc_dim_compras`: si el mes no tiene partición de ítems (CSV sin filas a inicio de mes), termina en éxito sin cargar en vez de fallar con `PATH_NOT_FOUND`. Probado con 2026-09, que no tiene partición en analytics. Causa de los fallos de las corridas programadas del 2026-11-01. Pendiente aparte: los `glue_vw_ordenes_compra_items` mueren por memoria (137) con Docker en 7,65 GB.

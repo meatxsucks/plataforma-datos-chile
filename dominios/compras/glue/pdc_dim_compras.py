@@ -4,6 +4,7 @@ from awsglue.context import GlueContext
 from awsglue.job import Job
 from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
+from pyspark.sql.utils import AnalysisException
 from pyspark.sql.functions import lit
 
 from glue_utils import ejecutar_sql, leer_sentencias, obtener_secreto, url_jdbc
@@ -20,7 +21,15 @@ mes = args["fechaParticion"]
 secreto = obtener_secreto(args["secretoBodega"])
 url = url_jdbc(secreto, args["hostBodega"] or None)
 
-items = spark.read.parquet(f"s3://{args['bucketOrigen']}/vw_ordenes_compra_items/mes={mes}/").withColumn("mes", lit(mes))
+# Al inicio de mes el CSV puede venir sin filas y el job de ítems no escribe partición
+try:
+    items = spark.read.parquet(f"s3://{args['bucketOrigen']}/vw_ordenes_compra_items/mes={mes}/").withColumn("mes", lit(mes))
+except AnalysisException as e:
+    if "PATH_NOT_FOUND" not in str(e):
+        raise
+    print(f"Sin partición de ítems para {mes}: no hay nada que cargar")
+    job.commit()
+    sys.exit(0)
 
 items.write.jdbc(
     url=url,
