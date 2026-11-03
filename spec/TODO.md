@@ -73,10 +73,10 @@ Cada fase termina con algo que se puede demostrar. No se pasa de fase sin cumpli
 ## Fase 7 — Transporte en tiempo real
 - [x] Solicitud al DTPM enviada el 2026-09-28
 - [x] Credenciales recibidas el 2026-10-21 y probadas: posiciones y alertas responden 200 ([[DTPM_Web_Services]]). Vencen ~2026-12-21
-- [ ] Productor real: consultar posiciones cada minuto → Kinesis (reemplaza al simulado)
+- [x] Productor real: consultar posiciones → Kinesis (probado a mano; schedule de 1 minuto creado pero deshabilitado)
 - [x] DECO a la bodega (`dim_servicio`, `dim_recorrido`)
 - [ ] GTFS estático a la bodega (hay que ubicar y descargar el archivo; no está en el repo)
-- [ ] Productor simulado → Kinesis → Lambda → DynamoDB + S3
+- [x] Kinesis → Lambda → DynamoDB + S3 (el simulado ya no hace falta)
 - [ ] Glue horario de puntualidad
 - **Término:** API devuelve buses activos de un recorrido y su puntualidad de la última hora.
 

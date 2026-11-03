@@ -8,7 +8,7 @@ CSV="${1:-$(ls "$RAIZ"/dominios/transporte/docs/DECO_VIGENTES_*.csv | tail -1)}"
 C=$(docker ps --format '{{.Names}}' | grep floci-rds | head -1)
 PSQL=(docker exec -i "$C" psql -U pdc_admin -d bodega -v ON_ERROR_STOP=1 -q)
 
-"${PSQL[@]}" < "$RAIZ/dominios/transporte/sql/bodega/01_ddl.sql"
+"${PSQL[@]}" < "$RAIZ/dominios/transporte/sql/bodega/10_ddl_transporte.sql"
 "${PSQL[@]}" -c "TRUNCATE stage.deco"
 "${PSQL[@]}" -c "\copy stage.deco FROM STDIN WITH (FORMAT csv, DELIMITER ';', HEADER)" < "$CSV"
 

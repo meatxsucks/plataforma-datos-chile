@@ -29,5 +29,7 @@ provider "aws" {
     docdb          = "http://localhost:4566"
     apigateway     = "http://localhost:4566"
     ec2            = "http://localhost:4566"
+    kinesis        = "http://localhost:4566"
+    dynamodb       = "http://localhost:4566"
   }
 }
