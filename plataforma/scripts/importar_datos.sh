@@ -24,7 +24,7 @@ docker ps -a --format '{{.Names}}' | grep -E '^floci-(rds|docdb)' | xargs -r doc
 sleep 15
 
 echo "4/5 Restaurar bodega y DocumentDB"
-RDS="$(docker ps --format '{{.Names}}' | grep '^floci-rds' | head -1)"
+RDS="$(docker ps --format '{{.Names}}' | grep '^floci-rds' | tail -1)"  # tras importar solo deberia haber uno
 DOCDB="$(docker ps --format '{{.Names}}' | grep '^floci-docdb' | head -1)"
 docker exec -i -e PGPASSWORD="$POSTGRES_PASSWORD" "$RDS" pg_restore -U pdc_admin -d bodega --clean --if-exists --no-owner < "$ORIGEN/bodega.dump" || echo "pg_restore reporto avisos (suelen ser roles ausentes): revisa que existan dw, stage y monitoreo"
 docker exec -i "$DOCDB" mongorestore -u pdc_admin -p "$DOCDB_PASSWORD" --authenticationDatabase admin --archive --gzip --drop < "$ORIGEN/docdb.archive.gz"

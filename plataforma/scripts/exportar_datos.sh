@@ -8,7 +8,11 @@ set -a; source "$RAIZ/.env"; set +a
 SALIDA="${1:-$HOME/pdc-export}"
 mkdir -p "$SALIDA"
 
-RDS="$(docker ps --format '{{.Names}}' | grep '^floci-rds' | head -1)"
+# floci puede dejar mas de un contenedor RDS: se usa el que tiene la bodega cargada
+RDS=""
+for c in $(docker ps --format '{{.Names}}' | grep '^floci-rds'); do
+  docker exec "$c" psql -U pdc_admin -d bodega -tAc "select 1 from pg_tables where schemaname='dw' limit 1" 2>/dev/null | grep -q 1 && RDS="$c"
+done
 DOCDB="$(docker ps --format '{{.Names}}' | grep '^floci-docdb' | head -1)"
 [ -n "$RDS" ] && [ -n "$DOCDB" ] || { echo "Levanta el stack primero (rds y docdb deben estar corriendo)"; exit 1; }
 
