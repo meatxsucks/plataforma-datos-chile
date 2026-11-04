@@ -76,3 +76,4 @@
 ## 2026-11-03
 - Scripts exportar_datos.sh e importar_datos.sh y docs/MIGRAR_OTRO_PC.md para llevar la plataforma y sus datos a otro PC.
 - Docker Desktop sube a 10 GB de memoria para que Glue procese octubre (antes moría con código 137).
+- importar_datos.sh: terraform init y empaquetado de las Lambdas api_compras y monitoreo antes del apply; verificación de hashes también en Linux. Prompt paso a paso para el agente que instala en el otro PC (docs/PROMPT_KIMI.md).

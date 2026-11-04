@@ -5,7 +5,7 @@ set -euo pipefail
 
 RAIZ="$(cd "$(dirname "$0")/../.." && pwd)"
 ORIGEN="${1:?Indica la carpeta con el export}"
-( cd "$ORIGEN" && shasum -a 256 -c SHA256SUMS )
+( cd "$ORIGEN" && { shasum -a 256 -c SHA256SUMS 2>/dev/null || sha256sum -c SHA256SUMS; } )
 
 echo "1/5 Archivos de configuracion"
 cp "$ORIGEN/env" "$RAIZ/.env"
@@ -29,7 +29,10 @@ DOCDB="$(docker ps --format '{{.Names}}' | grep '^floci-docdb' | head -1)"
 docker exec -i -e PGPASSWORD="$POSTGRES_PASSWORD" "$RDS" pg_restore -U pdc_admin -d bodega --clean --if-exists --no-owner < "$ORIGEN/bodega.dump" || echo "pg_restore reporto avisos (suelen ser roles ausentes): revisa que existan dw, stage y monitoreo"
 docker exec -i "$DOCDB" mongorestore -u pdc_admin -p "$DOCDB_PASSWORD" --authenticationDatabase admin --archive --gzip --drop < "$ORIGEN/docdb.archive.gz"
 
-echo "5/5 Recrear Airflow y publicar DAGs"
+echo "5/5 Terraform init, paquetes de Lambda (.build no viaja por git), Airflow y DAGs"
+terraform -chdir="$RAIZ/plataforma/terraform" init -input=false >/dev/null
+bash "$RAIZ/plataforma/scripts/empaquetar_lambda.sh" api_compras >/dev/null
+bash "$RAIZ/plataforma/scripts/empaquetar_lambda.sh" monitoreo >/dev/null
 bash "$RAIZ/plataforma/scripts/recrear_mwaa.sh"
 bash "$RAIZ/plataforma/scripts/publicar_dags.sh"
 echo "Listo. Airflow http://localhost:8080  Grafana http://localhost:3000"
