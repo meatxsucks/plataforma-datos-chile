@@ -72,3 +72,7 @@
 - Productor: latitud, longitud y velocidad se guardan como número (salían como texto) y un bus con valores malformados se descarta en vez de romper la invocación. Prueba con casos sintéticos: filtra la transmisión de 2023 y el valor vacío.
 - `docs/PUNTA_A_PUNTA.md`: guía de punta a punta con dos diagramas Mermaid (plataforma completa y secuencia del DAG), una sección por capa con su ADR y archivo, tabla emulado contra AWS real, limitaciones y diez preguntas de entrevista. Los diagramas se renderizaron sin errores de sintaxis.
 - `dominios/transporte/scripts/mapa_buses.py` genera una página Leaflet con los buses activos de DynamoDB; primera captura en `docs/capturas/mapa_buses.png` (3.849 buses sobre Santiago). El HTML generado no se versiona.
+
+## 2026-11-03
+- Scripts exportar_datos.sh e importar_datos.sh y docs/MIGRAR_OTRO_PC.md para llevar la plataforma y sus datos a otro PC.
+- Docker Desktop sube a 10 GB de memoria para que Glue procese octubre (antes moría con código 137).
